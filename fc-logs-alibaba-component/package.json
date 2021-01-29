@@ -2,8 +2,10 @@
   "name": "heimanba",
   "version": "0.0.1",
   "dependencies": {
-    "@pulumi/alicloud": "^2.32.0",
-    "@serverless-devs/s-core": "^0.0.22"
+    "@serverless-devs/s-core": "^0.0.22",
+    "aliyun-sdk": "^1.12.3",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "@types/eslint": "^7.2.6",
