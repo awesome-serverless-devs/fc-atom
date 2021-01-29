@@ -58,7 +58,7 @@ export default class Logs extends Component {
     }
 
     return {
-      Result: '233',
+      Properties: inputs.Properties,
     };
   }
 }
