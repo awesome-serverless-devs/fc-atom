@@ -5,13 +5,7 @@ import fcBuilders from '@alicloud/fc-builders';
 import { execSync } from 'child_process';
 import ncp from './ncp';
 import util from 'util';
-import {
-  checkCodeUri,
-  getArtifactPath,
-  getBuildCodeAbsPath,
-  getBuildCodeRelativePath,
-  isCopyCodeBuildRuntime,
-} from './utils';
+import { checkCodeUri, getArtifactPath, getBuildCodeAbsPath } from './utils';
 import generateBuildContainerBuildOpts from './build-opts';
 import { dockerRun } from './docker';
 import { IBuildInput, ICodeUri, IBuildDir } from '../interface';
@@ -67,12 +61,12 @@ export default class Builder {
     }
   }
 
-  async build(buildInput: IBuildInput): Promise<void> {
+  async build(buildInput: IBuildInput): Promise<string> {
     const useDocker = this.isUseDocker();
     if (useDocker) {
       this.logger.info('Use docker for building.');
     }
-    const { serviceName, functionName, functionProps } = buildInput;
+    const { functionProps } = buildInput;
     const { CodeUri: codeUri, Runtime: runtime } = functionProps;
     const baseDir = process.cwd();
 
@@ -92,12 +86,10 @@ export default class Builder {
     // }
 
     if (useDocker) {
-      await this.buildInDocker(buildInput);
+      return await this.buildInDocker(buildInput);
     } else {
-      await this.buildArtifact(buildInput);
+      return await this.buildArtifact(buildInput);
     }
-
-    this.logger.log('Build artifact successfully.');
   }
 
   async copyCodeForBuild(
@@ -137,7 +129,7 @@ export default class Builder {
     functionProps,
     verbose = true,
     credentials,
-  }: IBuildInput): Promise<void> {
+  }: IBuildInput): Promise<string> {
     const stages = ['install', 'build'];
 
     const baseDir = process.cwd();
@@ -170,6 +162,7 @@ export default class Builder {
       console.log('exitRs::', exitRs);
       throw new Error(`build function ${serviceName}/${functionName} error`);
     }
+    return funcArtifactDir;
   }
 
   async buildArtifact({
@@ -177,14 +170,11 @@ export default class Builder {
     functionName,
     functionProps,
     verbose = true,
-  }: IBuildInput): Promise<void> {
+  }: IBuildInput): Promise<string> {
     const baseDir = process.cwd();
     const runtime = functionProps.Runtime;
 
     const stages = ['install', 'build'];
-    // const codePath = isCopyCodeBuildRuntime(runtime)
-    //   ? getBuildCodeAbsPath({ baseDir, serviceName, functionName })
-    //   : baseDir;
     const codePath = baseDir;
     const artifactPath = this.initBuildArtifactDir({ baseDir, serviceName, functionName });
 
@@ -204,6 +194,7 @@ export default class Builder {
       stages,
     );
     await builder.build();
+    return artifactPath;
   }
 
   async codeSkipBuild({ baseDir, codeUri, runtime }: INeedBuild): Promise<boolean> {

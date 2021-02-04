@@ -1,12 +1,14 @@
 import { Component } from '@serverless-devs/s-core';
+import _ from 'lodash';
 import HELP from './utils/help';
 import Builder from './utils/builder';
 import { IBuildInput } from './interface';
-import { checkCommands } from './utils/utils';
+import { checkCommands, saveBuildYaml } from './utils/utils';
 
 interface IOutput {
   Properties: any;
   image?: string;
+  buildSaveUri?: string;
 }
 
 export default class Build extends Component {
@@ -40,11 +42,19 @@ export default class Build extends Component {
       Properties: inputs.Properties,
     };
     if (commands[0] === 'image') {
-      await builder.buildImage(params);
+      output.image = await builder.buildImage(params);
     } else {
-      await builder.build(params);
+      output.buildSaveUri = await builder.build(params);
     }
 
+    await saveBuildYaml({
+      region,
+      serviceProps,
+      functionProps,
+      project: _.cloneDeep(inputs.Project),
+    });
+
+    this.logger.log('Build artifact successfully.');
     return output;
   }
 }

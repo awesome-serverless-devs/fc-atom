@@ -1,11 +1,14 @@
 import _ from 'lodash';
 import path from 'path';
 import readline from 'readline';
+import yaml from 'js-yaml';
 import fs from 'fs-extra';
 import { SUPPORTRUNTIMEBUILDList, BUILDCOMMANDList } from './constant';
-import { ICodeUri, IBuildDir, IObject } from '../interface';
+import { ICodeUri, IBuildDir, IObject, IServiceProps, IFunctionProps } from '../interface';
 
 const logger = console;
+
+const BUILDARTIFACTS = path.join('.fun', 'build', 'artifacts');
 
 export function sleep(ms: number) {
   return new Promise((resolve) => {
@@ -65,7 +68,7 @@ export function checkCodeUri(codeUri: string | ICodeUri): string {
 }
 
 export function getArtifactPath({ baseDir, serviceName, functionName }: IBuildDir): string {
-  const rootArtifact = path.join(baseDir, '.fun', 'build', 'artifacts');
+  const rootArtifact = path.join(baseDir, BUILDARTIFACTS);
   return path.join(rootArtifact, serviceName, functionName);
 }
 
@@ -134,4 +137,49 @@ export async function resolveLibPathsFromLdConf(
     envs.LD_LIBRARY_PATH = libPaths.map((path) => `/code/.fun/root${path}`).join(':');
   }
   return envs;
+}
+
+interface ISaveBuild {
+  region: string;
+  serviceProps: IServiceProps;
+  functionProps: IFunctionProps;
+  project: IProject;
+}
+
+interface IProject {
+  [key: string]: any;
+}
+
+export async function saveBuildYaml({ region, serviceProps, functionProps, project }: ISaveBuild) {
+  const baseDir = process.cwd();
+  try {
+    const serviceName = serviceProps.Name;
+    const functionName = functionProps.Name;
+    const rootArtifactsDir = getArtifactPath({ baseDir, serviceName, functionName });
+
+    functionProps.CodeUri = path.join(serviceProps.Name, functionProps.Name);
+
+    const projectName = project.ProjectName;
+    delete project.ProjectName;
+    if (project.AccessAlias) {
+      project.Access = project.AccessAlias;
+      delete project.AccessAlias;
+    }
+
+    await fs.writeFile(
+      path.join(rootArtifactsDir, `${projectName}.build.yml`),
+      yaml.dump({
+        [projectName]: {
+          ...project,
+          Properties: {
+            Region: region,
+            Service: serviceProps,
+            Function: functionProps,
+          },
+        },
+      }),
+    );
+  } catch (e) {
+    throw e;
+  }
 }

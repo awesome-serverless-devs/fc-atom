@@ -2,15 +2,20 @@ import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
 import Docker from 'dockerode';
+import DraftLog from 'draftlog';
 import generatePwdFile from './passwd';
 import findPathsOutofSharedPaths from './docker-support';
 import { resolveLibPathsFromLdConf, checkCodeUri } from './utils';
 import { generateDebugEnv, addEnv } from './env';
 import { IServiceProps, IFunctionProps, IObject, ICredentials } from '../interface';
 
+const pkg = require('../../package.json');
+DraftLog.into(console);
+
 const docker = new Docker();
 const containers = new Set();
 const isWin = process.platform === 'win32';
+const DEFAULT_REGISTRY = pkg['fc-docker'].registry_default || 'registry.hub.docker.com';
 
 interface IDockerEnvs {
   baseDir: string;
@@ -35,6 +40,135 @@ function generateFunctionEnvs(functionProps: IFunctionProps): IObject {
   }
 
   return Object.assign({}, environmentVariables);
+}
+
+async function createContainer(opts): Promise<any> {
+  const isWin = process.platform === 'win32';
+  const isMac = process.platform === 'darwin';
+
+  if (opts && isMac) {
+    if (opts.HostConfig) {
+      const pathsOutofSharedPaths = await findPathsOutofSharedPaths(opts.HostConfig.Mounts);
+      if (isMac && pathsOutofSharedPaths.length > 0) {
+        throw new Error(
+          `Please add directory '${pathsOutofSharedPaths}' to Docker File sharing list, more information please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md`,
+        );
+      }
+    }
+  }
+  const dockerToolBox = await isDockerToolBoxAndEnsureDockerVersion();
+
+  let container;
+  try {
+    // see https://github.com/apocas/dockerode/pull/38
+    container = await docker.createContainer(opts);
+  } catch (ex) {
+    if (ex.message.indexOf('invalid mount config for type') !== -1 && dockerToolBox) {
+      throw new Error(
+        "The default host machine path for docker toolbox is under 'C:\\Users', Please make sure your project is in this directory. If you want to mount other disk paths, please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md .",
+      );
+    }
+    if (ex.message.indexOf('drive is not shared') !== -1 && isWin) {
+      throw new Error(
+        `${ex.message}More information please refer to https://docs.docker.com/docker-for-windows/#shared-drives`,
+      );
+    }
+    throw ex;
+  }
+  return container;
+}
+
+async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> {
+  const dockerInfo = await docker.info();
+
+  await detectDockerVersion(dockerInfo.ServerVersion || '');
+
+  const obj = (dockerInfo.Labels || [])
+    .map((e) => _.split(e, '=', 2))
+    .filter((e) => e.length === 2)
+    .reduce((acc, cur) => {
+      acc[cur[0]] = cur[1];
+      return acc;
+    }, {});
+
+  return process.platform === 'win32' && obj.provider === 'virtualbox';
+}
+
+async function detectDockerVersion(serverVersion: string): Promise<void> {
+  const cur = serverVersion.split('.');
+  // 1.13.1
+  if (Number.parseInt(cur[0]) === 1 && Number.parseInt(cur[1]) <= 13) {
+    throw new Error(
+      `\nWe detected that your docker version is ${serverVersion}, for a better experience, please upgrade the docker version.`,
+    );
+  }
+}
+
+async function imageExist(imageName: string): Promise<boolean> {
+  const images = await docker.listImages({
+    filters: {
+      reference: [imageName],
+    },
+  });
+
+  return images.length > 0;
+}
+
+function followProgress(stream, onFinished) {
+  const barLines = {};
+
+  const onProgress = (event) => {
+    let status = event.status;
+
+    if (event.progress) {
+      status = `${event.status} ${event.progress}`;
+    }
+
+    if (event.id) {
+      const id = event.id;
+
+      if (!barLines[id]) {
+        // @ts-ignore: 引入 draftlog 注入的方法
+        barLines[id] = console.draft();
+      }
+      barLines[id](id + ': ' + status);
+    } else {
+      if (_.has(event, 'aux.ID')) {
+        event.stream = event.aux.ID + '\n';
+      }
+      // If there is no id, the line should be wrapped manually.
+      const out = event.status ? event.status + '\n' : event.stream;
+      process.stdout.write(out);
+    }
+  };
+
+  docker.modem.followProgress(stream, onFinished, onProgress);
+}
+
+async function pullImage(imageName: string): Promise<void> {
+  const stream = await docker.pull(imageName);
+
+  const registry = DEFAULT_REGISTRY;
+
+  return await new Promise((resolve, reject) => {
+    console.log(
+      `begin pulling image ${imageName}, you can also use docker pull ${imageName} to pull image by yourself.`,
+    );
+
+    const onFinished = async (err) => {
+      containers.delete(stream);
+
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(registry);
+    };
+
+    containers.add(stream);
+    // pull image progress
+    followProgress(stream, onFinished);
+  });
 }
 
 export function generateRamdomContainerName(): string {
@@ -152,6 +286,8 @@ export async function resolvePasswdMount(): Promise<any> {
 }
 
 export async function dockerRun(opts: any): Promise<any> {
+  await pullImageIfNeed(opts.Image);
+
   const container = await createContainer(opts);
 
   const attachOpts = {
@@ -194,64 +330,12 @@ export async function dockerRun(opts: any): Promise<any> {
   return exitRs;
 }
 
-async function createContainer(opts): Promise<any> {
-  const isWin = process.platform === 'win32';
-  const isMac = process.platform === 'darwin';
+export async function pullImageIfNeed(imageName: string): Promise<void> {
+  const exist = await imageExist(imageName);
 
-  if (opts && isMac) {
-    if (opts.HostConfig) {
-      const pathsOutofSharedPaths = await findPathsOutofSharedPaths(opts.HostConfig.Mounts);
-      if (isMac && pathsOutofSharedPaths.length > 0) {
-        throw new Error(
-          `Please add directory '${pathsOutofSharedPaths}' to Docker File sharing list, more information please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md`,
-        );
-      }
-    }
-  }
-  const dockerToolBox = await isDockerToolBoxAndEnsureDockerVersion();
-
-  let container;
-  try {
-    // see https://github.com/apocas/dockerode/pull/38
-    container = await docker.createContainer(opts);
-  } catch (ex) {
-    if (ex.message.indexOf('invalid mount config for type') !== -1 && dockerToolBox) {
-      throw new Error(
-        "The default host machine path for docker toolbox is under 'C:\\Users', Please make sure your project is in this directory. If you want to mount other disk paths, please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md .",
-      );
-    }
-    if (ex.message.indexOf('drive is not shared') !== -1 && isWin) {
-      throw new Error(
-        `${ex.message}More information please refer to https://docs.docker.com/docker-for-windows/#shared-drives`,
-      );
-    }
-    throw ex;
-  }
-  return container;
-}
-
-async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> {
-  const dockerInfo = await docker.info();
-
-  await detectDockerVersion(dockerInfo.ServerVersion || '');
-
-  const obj = (dockerInfo.Labels || [])
-    .map((e) => _.split(e, '=', 2))
-    .filter((e) => e.length === 2)
-    .reduce((acc, cur) => {
-      acc[cur[0]] = cur[1];
-      return acc;
-    }, {});
-
-  return process.platform === 'win32' && obj.provider === 'virtualbox';
-}
-
-async function detectDockerVersion(serverVersion) {
-  const cur = serverVersion.split('.');
-  // 1.13.1
-  if (Number.parseInt(cur[0]) === 1 && Number.parseInt(cur[1]) <= 13) {
-    throw new Error(
-      `\nWe detected that your docker version is ${serverVersion}, for a better experience, please upgrade the docker version.`,
-    );
+  if (!exist) {
+    await pullImage(imageName);
+  } else {
+    console.log(`skip pulling image ${imageName}...`);
   }
 }
