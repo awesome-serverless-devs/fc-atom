@@ -3,14 +3,11 @@ import path from 'path';
 import _ from 'lodash';
 import fcBuilders from '@alicloud/fc-builders';
 import { execSync } from 'child_process';
-import ncp from './ncp';
-import util from 'util';
-import { checkCodeUri, getArtifactPath, getBuildCodeAbsPath } from './utils';
+import { checkCodeUri, getArtifactPath } from './utils';
 import generateBuildContainerBuildOpts from './build-opts';
 import { dockerRun } from './docker';
 import { IBuildInput, ICodeUri, IBuildDir } from '../interface';
 
-const ncpAsync = util.promisify(ncp);
 interface INeedBuild {
   baseDir: string;
   runtime: string;
@@ -80,44 +77,10 @@ export default class Builder {
       return;
     }
 
-    // if (isCopyCodeBuildRuntime(runtime)) {
-    //   this.initBuildCodeDir({ baseDir, serviceName, functionName });
-    //   await this.copyCodeForBuild(baseDir, checkCodeUri(codeUri), serviceName, functionName);
-    // }
-
     if (useDocker) {
       return await this.buildInDocker(buildInput);
     } else {
       return await this.buildArtifact(buildInput);
-    }
-  }
-
-  async copyCodeForBuild(
-    baseDir: string,
-    codeUri: string,
-    serviceName: string,
-    functionName: string,
-  ): Promise<void> {
-    const absCodeUri = path.resolve(baseDir, codeUri);
-    const buildCodePath = getBuildCodeAbsPath({ baseDir, serviceName, functionName });
-    try {
-      await ncpAsync(absCodeUri, buildCodePath, {
-        filter: (source) => {
-          if (
-            source.endsWith('.s') ||
-            source.endsWith('.fc') ||
-            source.endsWith('.fun') ||
-            source.endsWith('.git') ||
-            source === 'vendor' ||
-            source === 'node_modules'
-          ) {
-            return false;
-          }
-          return true;
-        },
-      });
-    } catch (e) {
-      this.logger.error(e.message);
     }
   }
 
@@ -133,9 +96,6 @@ export default class Builder {
     const stages = ['install', 'build'];
 
     const baseDir = process.cwd();
-    // const codeUri = isCopyCodeBuildRuntime(functionProps.Runtime)
-    //   ? getBuildCodeRelativePath(serviceName, functionName)
-    //   : baseDir;
     const codeUri = baseDir;
     const funcArtifactDir = this.initBuildArtifactDir({ baseDir, serviceName, functionName });
 
@@ -219,15 +179,6 @@ export default class Builder {
     }
 
     return taskFlows[0].name === 'DefaultTaskFlow';
-  }
-
-  initBuildCodeDir({ baseDir, serviceName, functionName }: IBuildDir): string {
-    const codePath = getBuildCodeAbsPath({ baseDir, serviceName, functionName });
-    if (fs.pathExistsSync(codePath)) {
-      fs.rmdirSync(codePath, { recursive: true });
-    }
-    fs.mkdirpSync(codePath);
-    return codePath;
   }
 
   initBuildArtifactDir({ baseDir, serviceName, functionName }: IBuildDir): string {

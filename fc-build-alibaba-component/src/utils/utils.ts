@@ -72,14 +72,6 @@ export function getArtifactPath({ baseDir, serviceName, functionName }: IBuildDi
   return path.join(rootArtifact, serviceName, functionName);
 }
 
-export function getBuildCodeAbsPath({ baseDir, serviceName, functionName }: IBuildDir): string {
-  return path.join(baseDir, getBuildCodeRelativePath(serviceName, functionName));
-}
-
-export function getBuildCodeRelativePath(serviceName, functionName): string {
-  return path.join('.fun', 'build', 'code', serviceName, functionName);
-}
-
 export function readLines(fileName: string): Promise<any[]> {
   return new Promise((resolve, reject) => {
     const lines = [];
