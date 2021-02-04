@@ -142,13 +142,16 @@ interface IProject {
   [key: string]: any;
 }
 
-export async function saveBuildYaml({ region, serviceProps, functionProps, project }: ISaveBuild) {
+export async function saveBuildYaml({
+  region,
+  serviceProps,
+  functionProps,
+  project,
+}: ISaveBuild): Promise<void> {
   const baseDir = process.cwd();
-  try {
-    const serviceName = serviceProps.Name;
-    const functionName = functionProps.Name;
-    const rootArtifactsDir = getArtifactPath({ baseDir, serviceName, functionName });
+  const rootArtifactsDir = path.join(baseDir, BUILDARTIFACTS);
 
+  try {
     functionProps.CodeUri = path.join(serviceProps.Name, functionProps.Name);
 
     const projectName = project.ProjectName;
