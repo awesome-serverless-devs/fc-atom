@@ -1,5 +1,5 @@
 export default {
-  description: 'Usage: s exec -- build',
+  description: 'Usage: s exec -- build docker -d, --dockerfile <Dockerfile>',
   commands: [
     {
       name: 'docker',
@@ -8,10 +8,6 @@ export default {
     {
       name: 'local',
       desc: 'Build dependencies directly.',
-    },
-    {
-      name: 'image',
-      desc: 'Build image for custom-runtime project.',
     },
   ],
 };

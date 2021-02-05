@@ -41,18 +41,19 @@ export default class Build extends Component {
     const output: IOutput = {
       Properties: inputs.Properties,
     };
-    if (commands[0] === 'image') {
-      output.image = await builder.buildImage(params);
-    } else {
-      output.buildSaveUri = await builder.build(params);
-    }
 
-    await saveBuildYaml({
-      region,
-      serviceProps,
-      functionProps,
-      project: _.cloneDeep(inputs.Project),
-    });
+    const buildOutput = await builder.build(params);
+    if (buildOutput.buildSaveUri) {
+      output.buildSaveUri = buildOutput.buildSaveUri;
+      await saveBuildYaml({
+        region,
+        serviceProps,
+        functionProps,
+        project: _.cloneDeep(inputs.Project),
+      });
+    } else {
+      output.image = buildOutput.image;
+    }
 
     this.logger.log('Build artifact successfully.');
     return output;

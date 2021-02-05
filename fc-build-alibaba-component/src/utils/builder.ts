@@ -14,9 +14,13 @@ interface INeedBuild {
   codeUri?: string | ICodeUri;
 }
 
+interface IBuildOutput {
+  image?: string;
+  buildSaveUri?: string;
+}
+
 export default class Builder {
   private commands: any;
-  // @ts-ignore
   private parameters: any;
 
   logger = console;
@@ -26,7 +30,7 @@ export default class Builder {
     this.parameters = parameters;
   }
 
-  buildImage(buildInput: IBuildInput) {
+  buildImage(buildInput: IBuildInput): string {
     const { functionProps } = buildInput;
 
     const customContainer = functionProps.CustomContainer;
@@ -36,7 +40,8 @@ export default class Builder {
       throw new Error(errorMessage);
     }
 
-    const dockerFileName = customContainer.Dockerfile ? customContainer.Dockerfile : 'Dockerfile';
+    const { d, dockerfile } = this.parameters;
+    const dockerFileName = d || dockerfile || 'Dockerfile';
     if (!fs.existsSync(dockerFileName)) {
       throw new Error('No dockerfile found.');
     }
@@ -58,7 +63,7 @@ export default class Builder {
     }
   }
 
-  async build(buildInput: IBuildInput): Promise<string> {
+  async build(buildInput: IBuildInput): Promise<IBuildOutput> {
     const useDocker = this.isUseDocker();
     if (useDocker) {
       this.logger.info('Use docker for building.');
@@ -68,7 +73,8 @@ export default class Builder {
     const baseDir = process.cwd();
 
     if (useDocker && runtime === 'custom-container') {
-      await this.buildImage(buildInput);
+      const image = this.buildImage(buildInput);
+      return { image };
     }
 
     const codeSkipBuild = await this.codeSkipBuild({ baseDir, codeUri, runtime });
@@ -77,11 +83,14 @@ export default class Builder {
       return;
     }
 
+    let buildSaveUri: string;
     if (useDocker) {
-      return await this.buildInDocker(buildInput);
+      buildSaveUri = await this.buildInDocker(buildInput);
     } else {
-      return await this.buildArtifact(buildInput);
+      buildSaveUri = await this.buildArtifact(buildInput);
     }
+
+    return { buildSaveUri };
   }
 
   async buildInDocker({
