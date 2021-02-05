@@ -1,8 +1,10 @@
+import { Logger, report } from '@serverless-devs/core';
+import { LOGOPTION } from './constant';
 import ip from 'ip';
 import _ from 'lodash';
+import { CONTEXT } from './constant';
 import { IObject } from '../interface';
 
-const logger = console;
 const IDE_PYCHARM = 'pycharm';
 const sysLibs = [
   '/usr/local/lib',
@@ -103,13 +105,17 @@ export function generateDebugEnv(runtime: string, debugPort?: string, debugIde?:
         DEBUG_OPTIONS: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${debugPort}`,
       };
     case 'php7.2':
-      logger.log(`using remote_ip ${remoteIp}`);
+      Logger.info(`using remote_ip ${remoteIp}`, LOGOPTION);
       return {
         XDEBUG_CONFIG: `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${remoteIp}`,
       };
     case 'dotnetcore2.1':
       return { DEBUG_OPTIONS: 'true' };
     default:
+      report('could not found runtime.', {
+        type: 'error',
+        context: CONTEXT,
+      });
       throw new Error('could not found runtime.');
   }
 }

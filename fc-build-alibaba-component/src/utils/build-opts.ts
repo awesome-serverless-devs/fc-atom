@@ -1,8 +1,10 @@
+import { report } from '@serverless-devs/core';
 import _ from 'lodash';
 import path from 'path';
 import nestedObjectAssign from 'nested-object-assign';
 import * as docker from './docker';
 import { addEnv } from './env';
+import { CONTEXT } from './constant';
 import { IServiceProps, IFunctionProps, ICredentials } from '../interface';
 
 const pkg = require('../../package.json');
@@ -154,7 +156,16 @@ async function resolveRuntimeToDockerImage(runtime: string): Promise<string> {
     const imageName = `${DEFAULT_REGISTRY}/aliyunfc/runtime-${name}:build-${IMAGE_VERSION}`;
     return imageName;
   }
-  throw new Error(`invalid runtime name ${runtime}`);
+  const errorMessage = `resolveRuntimeToDockerImage: invalid runtime name ${runtime}. Supported list: ${Object.keys(
+    runtimeImageMap,
+  )}`;
+
+  await report(errorMessage, {
+    type: 'error',
+    context: CONTEXT,
+  });
+
+  throw new Error(errorMessage);
 }
 
 function resolveDockerEnv(envs = {}) {

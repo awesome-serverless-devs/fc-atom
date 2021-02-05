@@ -1,3 +1,5 @@
+import { Logger } from '@serverless-devs/core';
+import { LOGOPTION } from './constant';
 import _ from 'lodash';
 import path from 'path';
 import readline from 'readline';
@@ -5,8 +7,6 @@ import yaml from 'js-yaml';
 import fs from 'fs-extra';
 import { SUPPORTRUNTIMEBUILDList, BUILDCOMMANDList } from './constant';
 import { ICodeUri, IBuildDir, IObject, IServiceProps, IFunctionProps } from '../interface';
-
-const logger = console;
 
 const BUILDARTIFACTS = path.join('.fun', 'build', 'artifacts');
 
@@ -25,7 +25,7 @@ export function isCopyCodeBuildRuntime(runtime: string): boolean {
   return false;
 }
 
-export function checkCommands(commands, runtime) {
+export function checkCommands(commands: string[], runtime: string) {
   if (_.isEmpty(commands)) {
     throw new Error("Input error, use 's build --help' for info.");
   }
@@ -56,12 +56,12 @@ export function checkCodeUri(codeUri: string | ICodeUri): string {
   const src = _.isString(codeUri) ? codeUri : codeUri.Src;
 
   if (!src) {
-    logger.info('No Src configured, skip building.');
+    Logger.info('No Src configured, skip building.', LOGOPTION);
     return '';
   }
 
   if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
-    logger.info('Artifact configured, skip building.');
+    Logger.info('Artifact configured, skip building.', LOGOPTION);
     return '';
   }
   return src;

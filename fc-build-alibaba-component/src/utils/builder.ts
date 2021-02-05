@@ -1,3 +1,4 @@
+import { HLogger, ILogger, report } from '@serverless-devs/core';
 import fs from 'fs-extra';
 import path from 'path';
 import _ from 'lodash';
@@ -6,7 +7,8 @@ import { execSync } from 'child_process';
 import { checkCodeUri, getArtifactPath } from './utils';
 import generateBuildContainerBuildOpts from './build-opts';
 import { dockerRun } from './docker';
-import { IBuildInput, ICodeUri, IBuildDir } from '../interface';
+import { CONTEXT } from './constant';
+import { IBuildInput, ICodeUri, IBuildDir, IObject } from '../interface';
 
 interface INeedBuild {
   baseDir: string;
@@ -20,35 +22,51 @@ interface IBuildOutput {
 }
 
 export default class Builder {
+  @HLogger(CONTEXT) logger: ILogger;
+
   private commands: any;
   private parameters: any;
+  projectName: string;
 
-  logger = console;
-
-  constructor(commands: any[], parameters: any[]) {
+  constructor(projectName: string, commands: any[], parameters: IObject) {
+    this.projectName = projectName;
     this.commands = commands;
     this.parameters = parameters;
   }
 
-  buildImage(buildInput: IBuildInput): string {
+  async buildImage(buildInput: IBuildInput): Promise<string> {
     const { functionProps } = buildInput;
 
     const customContainer = functionProps.CustomContainer;
 
     if (!customContainer) {
       const errorMessage = "No 'CustomContainer' configuration found in Function.";
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
       throw new Error(errorMessage);
     }
 
     const { d, dockerfile } = this.parameters;
     const dockerFileName = d || dockerfile || 'Dockerfile';
     if (!fs.existsSync(dockerFileName)) {
-      throw new Error('No dockerfile found.');
+      const errorMessage = 'No dockerfile found.';
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
+      throw new Error(errorMessage);
     }
 
     const imageName = customContainer.Image;
     if (!imageName) {
-      throw new Error('Function/CustomContainer/Image required.');
+      const errorMessage = 'Function/CustomContainer/Image required.';
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
+      throw new Error(errorMessage);
     }
 
     try {
@@ -59,6 +77,10 @@ export default class Builder {
       this.logger.log(`Build image(${imageName}) successfully`);
       return imageName;
     } catch (e) {
+      await report(e, {
+        type: 'error',
+        context: CONTEXT,
+      });
       throw e;
     }
   }
@@ -72,12 +94,15 @@ export default class Builder {
     const { CodeUri: codeUri, Runtime: runtime } = functionProps;
     const baseDir = process.cwd();
 
+    this.logger.debug(`[${this.projectName}] Runtime is ${runtime}.`);
+
     if (useDocker && runtime === 'custom-container') {
-      const image = this.buildImage(buildInput);
+      const image = await this.buildImage(buildInput);
       return { image };
     }
 
     const codeSkipBuild = await this.codeSkipBuild({ baseDir, codeUri, runtime });
+    this.logger.debug(`[${this.projectName}] Code skip build: ${codeSkipBuild}.`);
 
     if (!codeSkipBuild) {
       return;
@@ -122,14 +147,22 @@ export default class Builder {
       stages,
     });
 
+    this.logger.debug(
+      `[${this.projectName}] Generate Build Container Build Opts: ${JSON.stringify(opts)}`,
+    );
+
     const usedImage = opts.Image;
 
-    this.logger.info('\nBuild function using image: ' + usedImage);
+    this.logger.info('Build function using image: ' + usedImage);
 
     const exitRs = await dockerRun(opts);
     if (exitRs.StatusCode !== 0) {
-      console.log('exitRs::', exitRs);
-      throw new Error(`build function ${serviceName}/${functionName} error`);
+      const errorMessage = `build function ${serviceName}/${functionName} error.`;
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
+      throw new Error(errorMessage);
     }
     return funcArtifactDir;
   }
@@ -150,7 +183,10 @@ export default class Builder {
     // detect fcfile
     const fcfilePath = path.resolve(codePath, 'fcfile');
     if (fs.existsSync(fcfilePath)) {
-      this.logger.warn("Found fcfile in src directory, maybe you want to use 's build docker' ?");
+      this.logger.log(
+        "Found fcfile in src directory, maybe you want to use 's build docker' ?",
+        'yellow',
+      );
     }
 
     const builder = new fcBuilders.Builder(
@@ -192,10 +228,17 @@ export default class Builder {
 
   initBuildArtifactDir({ baseDir, serviceName, functionName }: IBuildDir): string {
     const artifactPath = getArtifactPath({ baseDir, serviceName, functionName });
+
+    this.logger.debug(`[${this.projectName}] Build save url: ${artifactPath}.`);
+
     if (fs.pathExistsSync(artifactPath)) {
+      this.logger.debug(`[${this.projectName}] Folder already exists, delete folder.`);
       fs.rmdirSync(artifactPath, { recursive: true });
+      this.logger.debug(`[${this.projectName}] Deleted folder successfully.`);
     }
+    this.logger.debug(`[${this.projectName}] Create build folder.`);
     fs.mkdirpSync(artifactPath);
+    this.logger.debug(`[${this.projectName}] Created build folder successfully.`);
     return artifactPath;
   }
 

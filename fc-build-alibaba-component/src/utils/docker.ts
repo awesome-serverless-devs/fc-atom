@@ -1,3 +1,4 @@
+import { Logger, report } from '@serverless-devs/core';
 import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
@@ -7,6 +8,7 @@ import generatePwdFile from './passwd';
 import findPathsOutofSharedPaths from './docker-support';
 import { resolveLibPathsFromLdConf, checkCodeUri } from './utils';
 import { generateDebugEnv, addEnv } from './env';
+import { LOGOPTION, CONTEXT } from './constant';
 import { IServiceProps, IFunctionProps, IObject, ICredentials } from '../interface';
 
 const pkg = require('../../package.json');
@@ -46,13 +48,18 @@ async function createContainer(opts): Promise<any> {
   const isWin = process.platform === 'win32';
   const isMac = process.platform === 'darwin';
 
+  Logger.debug(`Operating platform: ${process.platform}`, LOGOPTION);
+
   if (opts && isMac) {
     if (opts.HostConfig) {
       const pathsOutofSharedPaths = await findPathsOutofSharedPaths(opts.HostConfig.Mounts);
       if (isMac && pathsOutofSharedPaths.length > 0) {
-        throw new Error(
-          `Please add directory '${pathsOutofSharedPaths}' to Docker File sharing list, more information please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md`,
-        );
+        const errorMessage = `Please add directory '${pathsOutofSharedPaths}' to Docker File sharing list, more information please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md`;
+        await report(errorMessage, {
+          type: 'error',
+          context: CONTEXT,
+        });
+        throw new Error(errorMessage);
       }
     }
   }
@@ -64,15 +71,26 @@ async function createContainer(opts): Promise<any> {
     container = await docker.createContainer(opts);
   } catch (ex) {
     if (ex.message.indexOf('invalid mount config for type') !== -1 && dockerToolBox) {
-      throw new Error(
-        "The default host machine path for docker toolbox is under 'C:\\Users', Please make sure your project is in this directory. If you want to mount other disk paths, please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md .",
-      );
+      const errorMessage =
+        "The default host machine path for docker toolbox is under 'C:\\Users', Please make sure your project is in this directory. If you want to mount other disk paths, please refer to https://github.com/alibaba/funcraft/blob/master/docs/usage/faq-zh.md.";
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
+      throw new Error(errorMessage);
     }
     if (ex.message.indexOf('drive is not shared') !== -1 && isWin) {
-      throw new Error(
-        `${ex.message}More information please refer to https://docs.docker.com/docker-for-windows/#shared-drives`,
-      );
+      const errorMessage = `${ex.message}More information please refer to https://docs.docker.com/docker-for-windows/#shared-drives`;
+      await report(errorMessage, {
+        type: 'error',
+        context: CONTEXT,
+      });
+      throw new Error(errorMessage);
     }
+    await report(ex, {
+      type: 'error',
+      context: CONTEXT,
+    });
     throw ex;
   }
   return container;
@@ -80,6 +98,7 @@ async function createContainer(opts): Promise<any> {
 
 async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> {
   const dockerInfo = await docker.info();
+  Logger.debug(`Docker info: ${JSON.stringify(dockerInfo)}`, LOGOPTION);
 
   await detectDockerVersion(dockerInfo.ServerVersion || '');
 
@@ -98,9 +117,12 @@ async function detectDockerVersion(serverVersion: string): Promise<void> {
   const cur = serverVersion.split('.');
   // 1.13.1
   if (Number.parseInt(cur[0]) === 1 && Number.parseInt(cur[1]) <= 13) {
-    throw new Error(
-      `\nWe detected that your docker version is ${serverVersion}, for a better experience, please upgrade the docker version.`,
-    );
+    const errorMessage = `We detected that your docker version is ${serverVersion}, for a better experience, please upgrade the docker version.`;
+    await report(errorMessage, {
+      type: 'error',
+      context: CONTEXT,
+    });
+    throw new Error(errorMessage);
   }
 }
 
@@ -151,8 +173,9 @@ async function pullImage(imageName: string): Promise<void> {
   const registry = DEFAULT_REGISTRY;
 
   return await new Promise((resolve, reject) => {
-    console.log(
+    Logger.info(
       `begin pulling image ${imageName}, you can also use docker pull ${imageName} to pull image by yourself.`,
+      LOGOPTION,
     );
 
     const onFinished = async (err) => {
@@ -325,17 +348,21 @@ export async function dockerRun(opts: any): Promise<any> {
   // see https://docs.docker.com/engine/api/v1.37/#operation/ContainerWait
   const exitRs = await container.wait();
 
+  Logger.debug(`Container wait: ${JSON.stringify(exitRs)} `, LOGOPTION);
+
   containers.delete(container.id);
 
   return exitRs;
 }
 
 export async function pullImageIfNeed(imageName: string): Promise<void> {
+  Logger.debug(`Determine whether the docker image '${imageName}' exists.`, LOGOPTION);
   const exist = await imageExist(imageName);
+  Logger.debug(`Iamge '${imageName}' ${exist ? 'exists' : 'not exists'}.`, LOGOPTION);
 
   if (!exist) {
     await pullImage(imageName);
   } else {
-    console.log(`skip pulling image ${imageName}...`);
+    Logger.info(`skip pulling image ${imageName}...`);
   }
 }
