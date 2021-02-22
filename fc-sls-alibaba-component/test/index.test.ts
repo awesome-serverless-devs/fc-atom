@@ -5,7 +5,7 @@ const INPUTS = {
     Region: 'cn-shenzhen',
     LogConfig: {
       Project: 'aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1',
-      LogStore: 'function-log',
+      Logstore: 'function-log',
     },
     Topic: 'guide',
     Query: 'guide-hello_world-nodejs12',

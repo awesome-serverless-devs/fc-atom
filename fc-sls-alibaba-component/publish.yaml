@@ -19,7 +19,7 @@ Service:
       - 创建日志项目/仓库
       - 删除日志项目
 Properties:
-  Region:
+  region:
     Description: 地域
     Required: true
     Type:
@@ -43,20 +43,15 @@ Properties:
         - us-west-1
         - us-east-1
         - ap-south-1
-  LogConfig:
-    Project:
-      Description: 项目名称
-      Required: true
-      Type: String
-    LogStore:
-      Description: 仓库名称【创建/查看日志时必填】
-      Required: false
-      Type: String
-    Topic:
-      Description: 【查看日志时必填】
-      Required: false
-      Type: String
-    Query:
-      Description: 【查看日志时必填】
-      Required: false
-      Type: String
+  logstore:
+    Description: 日志项目
+    Required: true
+    Type: String
+  project:
+    Description: 日志仓库
+    Required: true
+    Type: String
+  description:
+    Description: 日志项目描述
+    Required: false
+    Type: String

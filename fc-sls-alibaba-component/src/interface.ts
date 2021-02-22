@@ -4,3 +4,10 @@ export interface ICredentials {
   AccessKeySecret: string;
   SecurityToken?: string;
 }
+
+export interface IProperties {
+  regionId: string;
+  logstore: string;
+  project: string;
+  description?: string;
+}
