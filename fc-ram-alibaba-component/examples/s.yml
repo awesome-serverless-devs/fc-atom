@@ -1,0 +1,6 @@
+demo-1:
+  Component:  # 指向项目路径
+  Provider: alibaba
+  Access: wss # 必填，获取密钥信息
+  Properties:
+    regionId: cn-shenzhen
