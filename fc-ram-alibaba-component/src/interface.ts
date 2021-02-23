@@ -6,8 +6,14 @@ export interface ICredentials {
 }
 
 export interface IProperties {
-  regionId: string;
-  logstore: string;
-  project: string;
+  name: string;
+  service?: string;
   description?: string;
+  statement?: any;
+  policys: Array<string | IPOLICY>;
+}
+
+export interface IPOLICY {
+  name: string;
+  statement: any;
 }

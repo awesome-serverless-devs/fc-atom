@@ -2,6 +2,7 @@ import { HLogger, ILogger, HComponent, IComponent } from '@serverless-devs/core'
 import _ from 'lodash';
 import { CONTEXT } from './constant';
 import { ICredentials, IProperties } from './interface';
+import Ram from './utils/ram';
 
 export default class RamCompoent {
   @HLogger(CONTEXT) logger: ILogger;
@@ -36,8 +37,16 @@ export default class RamCompoent {
     const properties: IProperties = inputs.Properties;
     this.logger.debug(`Properties values: ${JSON.stringify(properties)}.`);
 
-    // const ram = new Ram(properties.regionId, credentials);
-    // await ram.create(properties);
+    if (properties.service && properties.statement) {
+      this.logger.warn(
+        "The 'service' and 'statement' configurations exist at the same time, and the 'service' configuration is invalid and overwritten by the 'statement'.",
+      );
+    } else if (!(properties.service || properties.statement)) {
+      throw new Error("'service' and 'statement' must have at least one configuration.");
+    }
+
+    const ram = new Ram(credentials);
+    await ram.create(properties);
 
     this.logger.debug('Create ram success.');
   }

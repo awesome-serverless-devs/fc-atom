@@ -1,6 +1,17 @@
 demo-1:
-  Component:  # 指向项目路径
+  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-ram-alibaba-component/dist/index.js # 指向项目路径
   Provider: alibaba
   Access: wss # 必填，获取密钥信息
   Properties:
-    regionId: cn-shenzhen
+    name: test-ram # 必填
+    description: test-ram
+    service: fc.console.aliyun.com # 授权主题
+    policys:
+      - FC-post-log-to-qwe123-lllll23123
+      - AdministratorAccess
+      - name: policy-test
+        statement: # 策略配置
+          - Effect: Deny
+            Action:
+              - sts:AssumeRole
+            Resource: '*'
