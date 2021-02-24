@@ -1,0 +1,25 @@
+Type: Component
+Name: fc-logs-alibaba-component
+Provider:
+  - Alibaba
+Version: 0.1.1
+Description: logs 功能
+HomePage: https://github.com/Serverless-Devs
+Tags: #标签详情
+  - Alibaba fc
+Category: 基础云服务
+Commands:
+  logs: 查看日志
+  create: 创建日志项目/仓库
+  remove: 删除日志项目
+Service:
+  日志服务:
+    Runtime: Node.JS
+    Authorities:
+      - 创建日志项目/仓库
+      - 删除日志项目
+Properties:
+  name:
+    Description: 日志名称
+    Required: true
+    Type: String
