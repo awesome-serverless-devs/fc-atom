@@ -60,8 +60,9 @@ export default class RamCompoent {
     const properties: IProperties = inputs.Properties;
     this.logger.debug(`Properties values: ${JSON.stringify(properties)}.`);
 
-    // const ram = new Ram(properties.regionId, credentials);
-    // await ram.deleteProject(properties.project);
+    const ram = new Ram(credentials);
+    await ram.deleteRole(properties.name);
+    await ram.deletePolicys(properties.policys || []);
 
     this.logger.debug('Delete ram success.');
   }

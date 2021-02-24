@@ -5,7 +5,7 @@ demo-1:
   Properties:
     name: test-ram # 必填
     description: test-ram
-    service: fc.console.aliyun.com # 授权主题
+    service: fc.aliyuncs.com # 授权主题
     policys:
       - FC-post-log-to-qwe123-lllll23123
       - AdministratorAccess

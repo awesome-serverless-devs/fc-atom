@@ -10,10 +10,15 @@ export interface IProperties {
   service?: string;
   description?: string;
   statement?: any;
-  policys: Array<string | IPOLICY>;
+  policys: Array<string | IPolicy>;
 }
 
-export interface IPOLICY {
+export interface IPolicy {
   name: string;
   statement: any;
+}
+
+export interface IRoleDocument {
+  Version: string;
+  Statement: any;
 }
