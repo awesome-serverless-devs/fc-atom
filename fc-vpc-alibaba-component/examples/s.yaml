@@ -15,8 +15,4 @@ demo-1:
     # securityGroupName: wss-securityGroupName-test
     # securityGroupDescription: wss-securityGroupName-test
 
-    # s delete
-    # vpcId: vpc-wz99znia3za5cm7tkbyu5
-    # vSwitchId: vsw-wz901cn4wdyg8950q9rwc
-    # securityGroupId: sg-wz9i095yltfg40rlsajx
 

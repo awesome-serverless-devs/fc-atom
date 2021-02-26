@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@alicloud/pop-core": "^1.7.9",
-    "@serverless-devs/core": "0.0.20",
+    "@serverless-devs/core": "0.0.24",
     "inquirer": "^7.3.3",
     "lodash": "^4.17.20",
     "promise-retry": "^2.0.1"
