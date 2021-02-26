@@ -1,4 +1,4 @@
-export interface ICredentials {
+export class Credentials {
   AccountID: string;
   AccessKeyID: string;
   AccessKeySecret: string;
@@ -11,4 +11,14 @@ export interface IProperties {
   vswitchName: string;
   securityGroupName: string;
   zoneId: string;
+  vpcDescription?: string;
+  vswitchDescription?: string;
+  cidrBlock?: string;
+  securityGroupDescription?: string;
+}
+
+export interface IVpcConfig {
+  vpcId: string;
+  vSwitchId: string;
+  securityGroupId: string;
 }

@@ -1,4 +1,4 @@
-export const CONTEXT = 'FC-SLS';
+export const CONTEXT = 'FC-VPC';
 
 export const RETRYOPTIONS = {
   retries: 5,

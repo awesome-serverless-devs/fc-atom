@@ -1,0 +1,21 @@
+demo-1:
+  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-vpc-alibaba-component/dist/index.js # 指向项目路径
+  Provider: alibaba
+  Access: wss # 必填，获取密钥信息
+  Properties:
+    regionId: cn-shenzhen
+
+    # vpcName: vpc-test  
+    # vswitchName: ssss
+    # zoneId: cn-shenzhen-a
+    # securityGroupName: fc-fun-sg-1
+
+    vpcName: wss-vpc-test-1
+    vpcDescription: wss-vpc-test
+    vswitchName: wss-vswitchName-test
+    vswitchDescription: wss-vswitchName-test
+    cidrBlock: 10.20.0.0/16
+    zoneId: cn-shenzhen-d
+    securityGroupName: wss-securityGroupName-test
+    securityGroupDescription: wss-securityGroupName-test
+
