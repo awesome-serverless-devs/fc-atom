@@ -1,4 +1,4 @@
-export class Credentials {
+export interface ICredentials {
   AccountID: string;
   AccessKeyID: string;
   AccessKeySecret: string;
@@ -7,17 +7,25 @@ export class Credentials {
 
 export interface IProperties {
   regionId: string;
-  vpcName: string;
-  vswitchName: string;
-  securityGroupName: string;
   zoneId: string;
+  vpcName: string;
+  vSwitchName: string;
+  securityGroupName: string;
   vpcDescription?: string;
-  vswitchDescription?: string;
-  cidrBlock?: string;
+  vpcCidrBlock?: string;
+  vSwitchDescription?: string;
+  vSwitchCidrBlock?: string;
   securityGroupDescription?: string;
 }
 
 export interface IVpcConfig {
+  vpcId: string;
+  vSwitchId: string;
+  securityGroupId: string;
+}
+
+export interface IDeleteProperties {
+  regionId: string;
   vpcId: string;
   vSwitchId: string;
   securityGroupId: string;

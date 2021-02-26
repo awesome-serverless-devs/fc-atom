@@ -3,19 +3,20 @@ demo-1:
   Provider: alibaba
   Access: wss # 必填，获取密钥信息
   Properties:
+    # s create
     regionId: cn-shenzhen
-
-    # vpcName: vpc-test  
-    # vswitchName: ssss
-    # zoneId: cn-shenzhen-a
-    # securityGroupName: fc-fun-sg-1
-
-    vpcName: wss-vpc-test-1
-    vpcDescription: wss-vpc-test
-    vswitchName: wss-vswitchName-test
-    vswitchDescription: wss-vswitchName-test
-    cidrBlock: 10.20.0.0/16
     zoneId: cn-shenzhen-d
-    securityGroupName: wss-securityGroupName-test
-    securityGroupDescription: wss-securityGroupName-test
+    # vpcName: wss-vpc-test-1
+    # vpcDescription: wss-vpc-test
+    # vpcCidrBlock: 10.20.0.0/16
+    # vSwitchName: wss-vSwitchName-test
+    # vSwitchDescription: wss-vSwitchName-test
+    # vSwitchCidrBlock: 10.20.0.0/16
+    # securityGroupName: wss-securityGroupName-test
+    # securityGroupDescription: wss-securityGroupName-test
+
+    # s delete
+    # vpcId: vpc-wz99znia3za5cm7tkbyu5
+    # vSwitchId: vsw-wz901cn4wdyg8950q9rwc
+    # securityGroupId: sg-wz9i095yltfg40rlsajx
 
