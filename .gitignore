@@ -2,6 +2,8 @@
 /dist
 /node_modules
 .s
+/*/dist
+/*/node_modules
 
 # Logs
 logs
