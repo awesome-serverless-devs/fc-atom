@@ -1,0 +1,22 @@
+demo-1:
+  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-nas-alibaba-component/dist/index.js # 指向项目路径
+  Provider: alibaba
+  Access: wss # 必填，获取密钥信息
+  Properties:
+    regionId: cn-shenzhen
+    # 辅助函数使用
+    serviceName: WSS-NasTest
+    description: WSS-NasTest
+    functionName: nasTest
+    vpcId: vpc-wz91ihi7bnj8wrlsi9jyi
+    vSwitchId: vsw-wz9d31gogb6p8mik15ouf
+    securityGroupId: sg-wz9jaz33icbqb64tjohi
+    roleName: acs:ram::1899690531354629:role/aliyunfcgeneratedrole-cn-hangzhou-test-nas-auto
+    # 辅助函数 & 初始化 nas
+    groupId: 10003
+    userId: 10003
+    nasName: default_nas_created_by_fc_fun1
+    # mountPointDomain: # 指定配置
+    zoneId: cn-shenzhen-a
+    mountDir: /WSS-NasTest
+    nasDir: /mnt/WSS-NasTest
