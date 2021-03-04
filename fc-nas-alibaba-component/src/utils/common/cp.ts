@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import async from 'async';
 import rimraf from 'rimraf';
 import md5File from 'md5-file';
-import { HLogger, ILogger, zip, spinner } from '@serverless-devs/core';
+import { HLogger, ILogger, zip, spinner, unzip } from '@serverless-devs/core';
 import { fcClient } from '../client';
 import { ICredentials } from '../../interface';
 import {
@@ -13,6 +13,8 @@ import {
   cleanPath,
   fileCheck,
   statsPath,
+  pathExsit,
+  downloadPath,
 } from './generatePath';
 import * as constant from '../../constant';
 import * as utils from './utils';
@@ -59,9 +61,80 @@ export default class Cp {
 
     if (this.isCpFromLocalToNas(srcPath, targetPath)) {
       await this.cpFromLocalToNas(options);
+    } else if (this.isCpFromNasToLocal(srcPath, targetPath)) {
+      await this.cpFromNasToLocal(srcPath, targetPath, options.serviceName, options.functionName);
     } else {
-      this.logger.warn(`Skip.`);
+      throw new Error('Format of path not support');
     }
+  }
+
+  async cpFromNasToLocal(
+    nasPath: string,
+    localDir: string,
+    serviceName: string,
+    functionName: string,
+  ) {
+    const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
+    const resolveNasPath = utils.parseNasUri(nasPath);
+
+    await fs.mkdirs(localDir);
+
+    this.logger.debug(`Check nas path ${resolveNasPath} is exsit.`);
+    const res = await this.fcClient.get(pathExsit(nasHttpTriggerPath), {
+      targetPath: resolveNasPath,
+    });
+    if (!res.data) {
+      throw new Error(`${resolveNasPath} is not exsit.`);
+    }
+    this.logger.debug('Path is exsit.');
+
+    this.logger.log(`zipping ${resolveNasPath}`);
+    const tmpNasZipPath = path.posix.join(path.dirname(resolveNasPath), `.fun-nas-generated.zip`);
+
+    const cmd = `cd ${path.dirname(resolveNasPath)} && zip -r ${tmpNasZipPath} ${path.basename(
+      resolveNasPath,
+    )}`;
+    await this.fcClient.post(commandsPath(nasHttpTriggerPath), { cmd });
+    this.logger.log(`'✔' zip done`, 'green');
+
+    this.logger.log('downloading...');
+    const localZipDirname = path.join(process.cwd(), '.s', 'nas');
+    await fs.mkdirs(localZipDirname);
+    const localZipPath = path.join(localZipDirname, '.fun-nas-generated.zip');
+
+    const rs = await this.fcClient.post(
+      downloadPath(nasHttpTriggerPath),
+      { tmpNasZipPath },
+      {},
+      {},
+      { rawBuf: true },
+    );
+    this.logger.log(`'✔' download done`, 'green');
+
+    const buf = rs.data;
+    await new Promise((resolve, reject) => {
+      const ws = fs.createWriteStream(localZipPath);
+      ws.write(buf);
+      ws.end();
+      ws.on('finish', () => {
+        resolve('');
+      });
+      ws.on('error', (error) => {
+        this.logger.error(`${localZipPath} write error : ${error}`);
+        reject(error);
+      });
+    });
+
+    this.logger.log('unzipping file');
+    await unzip(localZipPath, path.resolve(localDir)).then(() => {
+      this.logger.log("'✔' unzip done!", 'green');
+    });
+
+    // clean
+    await fs.remove(localZipPath);
+    // await fs.remove(localZipDirname);
+    await this.sendCleanRequest(nasHttpTriggerPath, tmpNasZipPath);
+    this.logger.log("'✔' download completed!", 'green');
   }
 
   async cpFromLocalToNas(options: ICp) {
@@ -469,11 +542,11 @@ export default class Cp {
             this.logger.error(error);
             return;
           }
-          console.log(error.code, error.message.toLowerCase());
+          this.logger.log(error.code, error.message.toLowerCase());
           // 当解压文件数大于 1 ，默认为解压文件数过多导致 unzip 指令超出指令长度限制导致的解压失败
           // 会将解压文件列表折半拆分后进行重试
           if (unzipFiles.length > 1) {
-            console.log('Retry unziping...');
+            this.logger.log('Retry unziping...');
             const retryUnzipFiles = [];
             retryUnzipFiles.push(unzipFiles.slice(0, unzipFiles.length / 2));
             retryUnzipFiles.push(unzipFiles.slice(unzipFiles.length / 2, unzipFiles.length));
@@ -506,5 +579,9 @@ export default class Cp {
 
   isCpFromLocalToNas(srcPath: string, targetPath: string): boolean {
     return !utils.isNasProtocol(srcPath) && utils.isNasProtocol(targetPath);
+  }
+
+  isCpFromNasToLocal(srcPath: string, targetPath: string): boolean {
+    return utils.isNasProtocol(srcPath) && !utils.isNasProtocol(targetPath);
   }
 }
