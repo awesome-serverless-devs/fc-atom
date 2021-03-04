@@ -20,7 +20,7 @@ export interface IProperties {
   nasName?: string;
   mountPointDomain?: string;
   zoneId: string;
-  mountDir: string;
+  mountDir: string; // 需要删除
   nasDir: string;
 }
 
@@ -36,6 +36,15 @@ export interface IFcConfig {
 export interface INasInitResponse {
   fileSystemId: string;
   mountTargetDomain: string;
+}
+
+export interface ICommandParse {
+  rawData?: string;
+  data?: ICommandData;
+}
+
+export interface ICommandData {
+  [key: string]: any;
 }
 
 export function isCredentials(arg: any): arg is ICredentials {

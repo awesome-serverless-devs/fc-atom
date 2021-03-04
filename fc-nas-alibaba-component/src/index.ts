@@ -1,12 +1,19 @@
-import { HLogger, ILogger, getCredential, IV1Inputs } from '@serverless-devs/core';
+import {
+  HLogger,
+  ILogger,
+  getCredential,
+  IV1Inputs,
+  help,
+  commandParse,
+} from '@serverless-devs/core';
 import _ from 'lodash';
-import { CONTEXT } from './constant';
-import { ICredentials, IProperties, isCredentials, IFcConfig } from './interface';
+import * as constant from './constant';
+import { ICredentials, IProperties, isCredentials, IFcConfig, ICommandParse } from './interface';
 import Nas from './utils/nas';
-import FcResources from './utils/fcResources';
+import Common from './utils/common';
 
 export default class NasCompoent {
-  @HLogger(CONTEXT) logger: ILogger;
+  @HLogger(constant.CONTEXT) logger: ILogger;
 
   async getCredentials(
     credentials: {} | ICredentials,
@@ -74,24 +81,113 @@ export default class NasCompoent {
       mountPointDomain = nasInitResponse.mountTargetDomain;
     }
 
-    // const fc = new FcResources(properties.regionId, credentials);
-    // await fc.create(this.transformYamlConfigToFcNasConfig(properties, mountPointDomain));
-
-    this.logger.debug('Create nas success.');
+    this.logger.debug(`Create nas success, mountPointDomain: ${mountPointDomain}`);
   }
 
-  async delete(inputs) {
-    this.logger.debug('Delete nas start...');
+  async ls(inputs: IV1Inputs) {
+    const {
+      ProjectName: projectName,
+      Provider: provider,
+      AccessAlias: accessAlias,
+    } = inputs.Project;
 
-    this.logger.debug(`[${inputs.Project.ProjectName}] inputs params: ${JSON.stringify(inputs)}`);
+    this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
 
-    // const credentials = await this.getCredentials(inputs.Credentials, inputs);
-    // const properties: IProperties = inputs.Properties;
-    // this.logger.debug(`Properties values: ${JSON.stringify(properties)}.`);
+    const apts = { boolean: ['a', 'all', 'l', 'long'], alias: { all: 'a', long: 'l' } };
+    const { data: commandData = {} }: ICommandParse = commandParse({ args: inputs.Args }, apts);
+    this.logger.debug(`Command data is: ${JSON.stringify(commandData)}`);
 
-    // const sls = new Sls(properties.regionId, credentials);
-    // await sls.deleteProject(properties.project);
+    if (commandData.help) {
+      help(constant.LSHELP);
+      return;
+    }
 
-    this.logger.debug('Delete nas success.');
+    const { regionId, serviceName, functionName } = inputs.Properties;
+    const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    const common = new Common.Ls(regionId, credentials);
+
+    const argv_paras = commandData._ || [];
+    const nasDir: string = argv_paras[0];
+    if (!common.checkLsNasDir(nasDir)) {
+      help(constant.LSHELP);
+      return;
+    }
+
+    const isAllOpt: boolean = commandData.all;
+    const isLongOpt: boolean = commandData.long;
+
+    await common.ls({ targetPath: nasDir, isAllOpt, isLongOpt, serviceName, functionName });
+  }
+
+  async rm(inputs: IV1Inputs) {
+    const {
+      ProjectName: projectName,
+      Provider: provider,
+      AccessAlias: accessAlias,
+    } = inputs.Project;
+
+    this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
+
+    const apts = {
+      boolean: ['r', 'recursive', 'f', 'force'],
+      alias: { recursive: 'r', force: 'f' },
+    };
+    const { data: commandData = {} }: ICommandParse = commandParse({ args: inputs.Args }, apts);
+    this.logger.debug(`Command data is: ${JSON.stringify(commandData)}`);
+
+    const argv_paras = commandData._ || [];
+
+    if (commandData.help || !argv_paras[0]) {
+      help(constant.RMHELP);
+      return;
+    }
+
+    const { regionId, serviceName, functionName } = inputs.Properties;
+    const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    const common = new Common.Rm(regionId, credentials);
+
+    await common.rm({
+      serviceName,
+      functionName,
+      targetPath: argv_paras[0],
+      recursive: commandData.r,
+      force: commandData.f,
+    });
+  }
+
+  async cp(inputs: IV1Inputs) {
+    const {
+      ProjectName: projectName,
+      Provider: provider,
+      AccessAlias: accessAlias,
+    } = inputs.Project;
+    this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
+
+    const apts = {
+      boolean: ['recursive', 'r', 'no-clobber', 'n'],
+      alias: { recursive: 'r', 'no-clobber': 'n' },
+    };
+    const { data: commandData = {} }: ICommandParse = commandParse({ args: inputs.Args }, apts);
+    this.logger.debug(`Command data is: ${JSON.stringify(commandData)}`);
+
+    const argv_paras = commandData._ || [];
+    if (commandData.help || argv_paras.length !== 2) {
+      help(constant.CPHELP);
+      return;
+    }
+
+    const { regionId, serviceName, functionName } = inputs.Properties;
+    const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    const common = new Common.Cp(regionId, credentials);
+
+    await common.cp({
+      srcPath: argv_paras[0],
+      targetPath: argv_paras[1],
+      recursive: commandData.r,
+      noClobber: commandData.n,
+      serviceName,
+      functionName,
+      noTargetDirectory: true,
+    });
   }
 }

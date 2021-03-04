@@ -7,7 +7,7 @@ demo-1:
     # 辅助函数使用
     serviceName: WSS-NasTest
     description: WSS-NasTest
-    functionName: nasTest
+    functionName: nas
     vpcId: vpc-wz91ihi7bnj8wrlsi9jyi
     vSwitchId: vsw-wz9d31gogb6p8mik15ouf
     securityGroupId: sg-wz9jaz33icbqb64tjohi

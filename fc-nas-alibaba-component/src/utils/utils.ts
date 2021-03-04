@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import _ from 'lodash';
 
 export const getTimeout = (): number => parseInt(process.env.NAS_FUNCTION_TIMEOUT) || 600 * 1000;
 
