@@ -18,5 +18,5 @@ demo-1:
     nasName: default_nas_created_by_fc_fun1
     # mountPointDomain: # 指定配置
     zoneId: cn-shenzhen-a
-    mountDir: /WSS-NasTest
-    nasDir: /mnt/WSS-NasTest
+    nasDir: /WSS-NasTest
+    mountDir: /mnt/WSS-NasTest

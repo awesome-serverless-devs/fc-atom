@@ -1,17 +1,19 @@
-import { HLogger, ILogger, IV1Inputs, IInputs, load } from '@serverless-devs/core';
+import { HLogger, ILogger, IV1Inputs, IInputs, load, zip } from '@serverless-devs/core';
 import _ from 'lodash';
+import path from 'path';
 import { fcClient } from '../client';
 import { CONTEXT } from '../../constant';
 import { ICredentials, IProperties } from '../../interface';
 import { IFcConfig } from './interface';
+import { sleep } from '../utils';
 // import retry from 'promise-retry';
 
 const ENSURENASDIREXISTSERVICE = 'ensure-nas-dir-exist-service';
 const ENSURENASDIREXISTFUNCTION = 'nas_dir_checker';
-const ENSURENASDIREXISTFILENAME = './ensureNasDirExist.js';
+const ENSURENASDIREXISTFILENAME = path.join(__dirname, 'ensure-nas-dir-exist.zip');
 
 const NASSERVER = 'nas-server';
-const NASSERVERFILENAME = './nas-server.zip';
+const NASSERVERFILENAME = path.join(__dirname, 'nas-server.zip');
 
 export default class Resources {
   @HLogger(CONTEXT) logger: ILogger;
@@ -24,17 +26,38 @@ export default class Resources {
   }
 
   async init(inputs: IV1Inputs, mountPointDomain: string) {
+    const fcBase = await load('fc-base', 'alibaba');
+
+    await this.ensureNasDir(fcBase, inputs, mountPointDomain);
+
+    await this.deployNasService();
+  }
+
+  deployNasService() {}
+
+  async ensureNasDir(fcBase: any, inputs: IV1Inputs, mountPointDomain: string) {
     const ensureNasDirInputs = this.transformYamlConfigToFcbaseConfig(
       inputs,
       mountPointDomain,
       true,
     );
 
-    console.log(ensureNasDirInputs);
-    console.log(JSON.stringify(ensureNasDirInputs, null, '    '));
-
-    const fcBase = await load('fc-base', 'alibaba');
     await fcBase.deploy(ensureNasDirInputs);
+    await sleep(1000);
+
+    const f = ensureNasDirInputs.properties.function;
+    const { mountDir, nasDir } = inputs.Properties;
+
+    this.logger.debug(
+      `Invoke fc function, service name is: ${f.service}, function name is: ${
+        f.name
+      }, event is: ${JSON.stringify([nasDir])}`,
+    );
+    await this.invokeFcUtilsFunction(
+      f.service,
+      f.name,
+      JSON.stringify([path.join(mountDir, nasDir)]),
+    );
   }
 
   transformYamlConfigToFcbaseConfig(
@@ -49,7 +72,7 @@ export default class Resources {
       serviceName,
       functionName,
       roleName,
-      vpcId,
+      // vpcId,
       vSwitchId,
       securityGroupId,
       mountDir,
@@ -57,6 +80,7 @@ export default class Resources {
       userId = 10003,
       groupId = 10003,
     } = inputs?.properties || inputs?.Properties;
+
     const service = `${serviceName}-${isEnsureNasDirExist ? ENSURENASDIREXISTSERVICE : NASSERVER}`;
 
     const properties: IFcConfig = {
@@ -65,7 +89,7 @@ export default class Resources {
         name: service,
         role: roleName,
         vpcConfig: {
-          vpcId,
+          // vpcId,
           securityGroupId,
           vswitchIds: [vSwitchId],
         },
@@ -83,7 +107,7 @@ export default class Resources {
       function: {
         service,
         name: isEnsureNasDirExist ? ENSURENASDIREXISTFUNCTION : functionName,
-        handler: 'index.hanlder',
+        handler: 'index.handler',
         filename: isEnsureNasDirExist ? ENSURENASDIREXISTFILENAME : NASSERVERFILENAME,
         runtime: 'nodejs8',
       },
@@ -104,5 +128,30 @@ export default class Resources {
     output.command = 'deploy';
     output.args = '-y';
     return output;
+  }
+
+  async invokeFcUtilsFunction(serviceName: string, functionName: string, event: string) {
+    const rs = await this.fcClient.invokeFunction(serviceName, functionName, event, {
+      'X-Fc-Log-Type': 'Tail',
+    });
+
+    if (rs.data !== 'OK') {
+      const log = rs.headers['x-fc-log-result'];
+
+      if (log) {
+        const decodedLog = Buffer.from(log, 'base64');
+        this.logger.warn(
+          `Invoke fc function ${serviceName}/${functionName} response is: ${decodedLog}`,
+        );
+        if (decodedLog.toString().toLowerCase().includes('permission denied')) {
+          throw new Error(
+            `fc utils function ${functionName} invoke error, error message is: ${decodedLog}`,
+          );
+        }
+        throw new Error(
+          `fc utils function ${functionName} invoke error, error message is: ${decodedLog}`,
+        );
+      }
+    }
   }
 }

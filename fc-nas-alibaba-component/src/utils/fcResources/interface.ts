@@ -57,7 +57,7 @@ export interface ILogConfig {
 export interface IVpcConfig {
   securityGroupId: string;
   vswitchIds: string[];
-  vpcId: string;
+  vpcId?: string;
 }
 
 export interface INasConfig {

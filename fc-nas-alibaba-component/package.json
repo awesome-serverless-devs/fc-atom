@@ -30,9 +30,9 @@
     "webpack-cli": "^4.4.0"
   },
   "scripts": {
-    "dev": "node npm-run-dev",
+    "dev": "npx tsc -w -p tsconfig.json",
     "prebuild": "rimraf dist",
-    "nas-package": "make -C ./src/utils/fcResources/nas-server package",
+    "package-zip": "make -C ./src/utils/fcResources/ensure-nas-dir-exist package && make -C ./src/utils/fcResources/nas-server package",
     "build:ts": "npx tsc -p tsconfig.json",
     "build:component": "npx webpack --mode=production",
     "publish": "npm run build:component && s platform publish",
