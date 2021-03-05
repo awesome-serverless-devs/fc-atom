@@ -24,15 +24,6 @@ export interface IProperties {
   nasDir: string;
 }
 
-export interface IFcConfig {
-  serviceName: string;
-  functionName?: string;
-  description?: string;
-  vpcConfig: object;
-  nasConfig: object;
-  roleName: string;
-}
-
 export interface INasInitResponse {
   fileSystemId: string;
   mountTargetDomain: string;

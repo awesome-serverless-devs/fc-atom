@@ -1,7 +1,9 @@
 # compiled output
 /dist
-/*/node_modules
-/node_modules
+node_modules
+
+# nas-server
+src/utils/fcResources/nas-server/dist
 
 # Logs
 logs

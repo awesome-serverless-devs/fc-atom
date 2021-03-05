@@ -8,9 +8,10 @@ import {
 } from '@serverless-devs/core';
 import _ from 'lodash';
 import * as constant from './constant';
-import { ICredentials, IProperties, isCredentials, IFcConfig, ICommandParse } from './interface';
+import { ICredentials, IProperties, isCredentials, ICommandParse } from './interface';
 import Nas from './utils/nas';
 import Common from './utils/common';
+import FcResources from './utils/fcResources';
 
 export default class NasCompoent {
   @HLogger(constant.CONTEXT) logger: ILogger;
@@ -29,30 +30,6 @@ export default class NasCompoent {
       return credentials;
     }
     return await getCredential(provider, accessAlias);
-  }
-
-  transformYamlConfigToFcNasConfig(properties: IProperties, mountTargetDomain: string): IFcConfig {
-    return {
-      serviceName: properties.serviceName,
-      description: properties.description,
-      functionName: properties.functionName,
-      roleName: properties.roleName,
-      vpcConfig: {
-        vpcId: properties.vpcId,
-        vSwitchIds: [properties.vSwitchId],
-        securityGroupId: properties.securityGroupId,
-      },
-      nasConfig: {
-        UserId: properties.userId || 10003,
-        GroupId: properties.groupId || 10003,
-        MountPoints: [
-          {
-            ServerAddr: `${mountTargetDomain}:/${properties.nasDir}`,
-            MountDir: properties.mountDir,
-          },
-        ],
-      },
-    };
   }
 
   async create(inputs: IV1Inputs) {
@@ -80,8 +57,10 @@ export default class NasCompoent {
       this.logger.debug(`Nas init response is: ${JSON.stringify(nasInitResponse)}`);
       mountPointDomain = nasInitResponse.mountTargetDomain;
     }
-
     this.logger.debug(`Create nas success, mountPointDomain: ${mountPointDomain}`);
+
+    const fc = new FcResources(properties.regionId, credentials);
+    await fc.init(inputs, mountPointDomain);
   }
 
   async ls(inputs: IV1Inputs) {
