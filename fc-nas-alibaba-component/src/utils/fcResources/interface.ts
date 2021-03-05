@@ -2,7 +2,7 @@ export interface IFcConfig {
   region: string;
   service: IServiceConfig;
   function: IFunctionConfig;
-  triggers?: IHttpTriggerConfig[];
+  triggers?: ITriggerConfig[];
 }
 
 export interface IServiceConfig {
@@ -42,6 +42,14 @@ export interface ICustomContainerConfig {
   image: string;
   command?: string;
   args?: string;
+}
+
+export interface ITriggerConfig {
+  name: string;
+  function: string;
+  service: string;
+  type: string;
+  config: IHttpTriggerConfig;
 }
 
 export interface IHttpTriggerConfig {

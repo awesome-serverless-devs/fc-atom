@@ -1,5 +1,7 @@
 export const CONTEXT = 'FC-NAS';
 
+export const FUNNAME = 'nas-function';
+
 export const RETRYOPTIONS = {
   retries: 5,
   factor: 2,

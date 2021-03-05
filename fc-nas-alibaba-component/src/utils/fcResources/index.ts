@@ -1,24 +1,23 @@
-import { HLogger, ILogger, IV1Inputs, IInputs, load, zip } from '@serverless-devs/core';
+import { HLogger, ILogger, IV1Inputs, IInputs, load } from '@serverless-devs/core';
 import _ from 'lodash';
 import path from 'path';
 import { fcClient } from '../client';
-import { CONTEXT } from '../../constant';
-import { ICredentials, IProperties } from '../../interface';
+import { CONTEXT, FUNNAME } from '../../constant';
+import { ICredentials } from '../../interface';
 import { IFcConfig } from './interface';
 import { sleep } from '../utils';
-// import retry from 'promise-retry';
 
 const ENSURENASDIREXISTSERVICE = 'ensure-nas-dir-exist-service';
 const ENSURENASDIREXISTFUNCTION = 'nas_dir_checker';
 const ENSURENASDIREXISTFILENAME = path.join(__dirname, 'ensure-nas-dir-exist.zip');
 
-const NASSERVER = 'nas-server';
 const NASSERVERFILENAME = path.join(__dirname, 'nas-server.zip');
 
 export default class Resources {
   @HLogger(CONTEXT) logger: ILogger;
   fcClient: any;
   profile: ICredentials;
+  fcBase: any;
 
   constructor(regionId: string, profile: ICredentials) {
     this.fcClient = fcClient(regionId, profile);
@@ -26,23 +25,47 @@ export default class Resources {
   }
 
   async init(inputs: IV1Inputs, mountPointDomain: string) {
-    const fcBase = await load('fc-base', 'alibaba');
+    this.fcBase = await load('fc-base', 'alibaba');
 
-    await this.ensureNasDir(fcBase, inputs, mountPointDomain);
+    await this.deployEnsureNasDir(inputs, mountPointDomain);
 
-    await this.deployNasService();
+    await this.deployNasService(inputs, mountPointDomain);
   }
 
-  deployNasService() {}
+  async remove(inputs: IV1Inputs) {
+    const fcBase = await load('fc-base', 'alibaba');
 
-  async ensureNasDir(fcBase: any, inputs: IV1Inputs, mountPointDomain: string) {
+    const nasServiceInputs = this.transformYamlConfigToFcbaseConfig(inputs, '', false);
+    nasServiceInputs.args = 'service -y';
+    await fcBase.remove(nasServiceInputs);
+
+    const ensureNasDirInputs = this.transformYamlConfigToFcbaseConfig(inputs, '', true);
+    ensureNasDirInputs.args = 'service -y';
+    await fcBase.remove(ensureNasDirInputs);
+  }
+
+  async deployNasService(inputs: IV1Inputs, mountPointDomain: string) {
+    const nasServiceInputs = this.transformYamlConfigToFcbaseConfig(
+      inputs,
+      mountPointDomain,
+      false,
+    );
+    // console.log('nasServiceInputs:: ', JSON.stringify(nasServiceInputs, null, '   '));
+
+    await this.fcBase.deploy(nasServiceInputs);
+    this.logger.warn(`Waiting for trigger to be up`);
+    await sleep(5000);
+  }
+
+  async deployEnsureNasDir(inputs: IV1Inputs, mountPointDomain: string) {
     const ensureNasDirInputs = this.transformYamlConfigToFcbaseConfig(
       inputs,
       mountPointDomain,
       true,
     );
+    // console.log('ensureNasDirInputs:: ', JSON.stringify(ensureNasDirInputs, null, '  '));
 
-    await fcBase.deploy(ensureNasDirInputs);
+    await this.fcBase.deploy(ensureNasDirInputs);
     await sleep(1000);
 
     const f = ensureNasDirInputs.properties.function;
@@ -70,7 +93,7 @@ export default class Resources {
     const {
       regionId,
       serviceName,
-      functionName,
+      functionName = FUNNAME,
       roleName,
       // vpcId,
       vSwitchId,
@@ -81,7 +104,10 @@ export default class Resources {
       groupId = 10003,
     } = inputs?.properties || inputs?.Properties;
 
-    const service = `${serviceName}-${isEnsureNasDirExist ? ENSURENASDIREXISTSERVICE : NASSERVER}`;
+    const service = isEnsureNasDirExist
+      ? `${serviceName}-${ENSURENASDIREXISTSERVICE}`
+      : serviceName;
+    const funName = isEnsureNasDirExist ? ENSURENASDIREXISTFUNCTION : functionName;
 
     const properties: IFcConfig = {
       region: regionId,
@@ -106,12 +132,27 @@ export default class Resources {
       },
       function: {
         service,
-        name: isEnsureNasDirExist ? ENSURENASDIREXISTFUNCTION : functionName,
+        name: funName,
         handler: 'index.handler',
         filename: isEnsureNasDirExist ? ENSURENASDIREXISTFILENAME : NASSERVERFILENAME,
         runtime: 'nodejs8',
       },
     };
+
+    if (!isEnsureNasDirExist) {
+      properties.triggers = [
+        {
+          name: 'httpTrigger',
+          function: funName,
+          service: service,
+          type: 'http',
+          config: {
+            authType: 'function',
+            methods: ['POST', 'GET'],
+          },
+        },
+      ];
+    }
 
     _.forEach(inputs, (value, key) => {
       const k = _.lowerFirst(key);
@@ -125,8 +166,6 @@ export default class Resources {
     output.credentials = this.profile;
     output.project.component = 'fc-base';
     output.properties = properties;
-    output.command = 'deploy';
-    output.args = '-y';
     return output;
   }
 

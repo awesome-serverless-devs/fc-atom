@@ -8,7 +8,7 @@ export interface ICredentials {
 export interface IProperties {
   regionId: string;
   serviceName: string;
-  functionName: string;
+  functionName?: string;
   vpcId: string;
   vSwitchId: string;
   securityGroupId: string;

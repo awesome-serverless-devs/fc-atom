@@ -13,7 +13,6 @@
     "md5-file": "^5.0.0",
     "node-machine-id": "^1.1.12",
     "os-locale": "^5.0.0",
-    "promise-retry": "^2.0.1",
     "walkdir": "^0.4.1"
   },
   "devDependencies": {

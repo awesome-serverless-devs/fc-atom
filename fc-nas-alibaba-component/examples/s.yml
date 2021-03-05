@@ -5,9 +5,9 @@ demo-1:
   Properties:
     regionId: cn-shenzhen
     # 辅助函数使用
-    serviceName: WSS-NasTest
+    serviceName: WSS-NasTest-2
     description: WSS-NasTest
-    functionName: nas
+    # functionName: nas
     vpcId: vpc-wz91ihi7bnj8wrlsi9jyi
     vSwitchId: vsw-wz9d31gogb6p8mik15ouf
     securityGroupId: sg-wz9jaz33icbqb64tjohi
@@ -18,5 +18,5 @@ demo-1:
     nasName: default_nas_created_by_fc_fun1
     # mountPointDomain: # 指定配置
     zoneId: cn-shenzhen-a
-    nasDir: /WSS-NasTest
+    nasDir: WSS-NasTest
     mountDir: /mnt/WSS-NasTest

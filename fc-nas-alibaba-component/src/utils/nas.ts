@@ -60,6 +60,31 @@ export default class Nas {
     };
   }
 
+  async remove(properties: IProperties) {
+    const { regionId, nasName, vpcId, vSwitchId } = properties;
+    const fileSystemId = await this.findNasFileSystem(regionId, nasName);
+    if (!fileSystemId) {
+      this.logger.warn(`${nasName} not found under ${regionId}.`);
+      return;
+    }
+
+    const mountTargetDomain = await this.findMountTarget(regionId, fileSystemId, vpcId, vSwitchId);
+    this.logger.info(`Found mount target domain is: ${mountTargetDomain}`);
+    if (mountTargetDomain) {
+      const p = {
+        FileSystemId: fileSystemId,
+        MountTargetDomain: mountTargetDomain,
+      };
+      this.logger.info(`DeleteMountTarget param is: ${JSON.stringify(p)}`);
+      await this.nasClient.request('DeleteMountTarget', p, REQUESTOPTION);
+      this.logger.info(`Delete ${mountTargetDomain} success.`);
+    }
+
+    this.logger.info(`DeleteFileSystem ${fileSystemId} start...`);
+    await this.nasClient.request('DeleteFileSystem', { FileSystemId: fileSystemId }, REQUESTOPTION);
+    this.logger.info(`DeleteFileSystem ${fileSystemId} success.`);
+  }
+
   async findNasFileSystem(regionId: string, description: string): Promise<undefined | string> {
     const pageSize = 100;
     let requestPageNumber = 0;

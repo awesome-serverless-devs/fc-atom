@@ -32,7 +32,7 @@ export default class NasCompoent {
     return await getCredential(provider, accessAlias);
   }
 
-  async create(inputs: IV1Inputs) {
+  async deploy(inputs: IV1Inputs) {
     this.logger.debug('Create nas start...');
 
     const {
@@ -48,6 +48,7 @@ export default class NasCompoent {
     this.logger.debug(`Properties values: ${JSON.stringify(properties)}.`);
 
     let mountPointDomain: string;
+    let fileSystemId = '';
     if (properties.mountPointDomain) {
       mountPointDomain = properties.mountPointDomain;
       this.logger.info(`Specify parameters, reuse configuration.`);
@@ -55,12 +56,37 @@ export default class NasCompoent {
       const nas = new Nas(properties.regionId, credentials);
       const nasInitResponse = await nas.init(properties);
       this.logger.debug(`Nas init response is: ${JSON.stringify(nasInitResponse)}`);
+
       mountPointDomain = nasInitResponse.mountTargetDomain;
+      fileSystemId = nasInitResponse.fileSystemId;
     }
     this.logger.debug(`Create nas success, mountPointDomain: ${mountPointDomain}`);
 
     const fc = new FcResources(properties.regionId, credentials);
     await fc.init(inputs, mountPointDomain);
+
+    return { mountPointDomain, fileSystemId };
+  }
+
+  async remove(inputs: IV1Inputs) {
+    this.logger.debug('Remove nas start...');
+
+    const {
+      ProjectName: projectName,
+      Provider: provider,
+      AccessAlias: accessAlias,
+    } = inputs.Project;
+
+    this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
+
+    const regionId = inputs.Properties.regionId;
+    const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+
+    const fc = new FcResources(regionId, credentials);
+    await fc.remove(inputs);
+
+    const nas = new Nas(regionId, credentials);
+    await nas.remove(inputs.Properties);
   }
 
   async ls(inputs: IV1Inputs) {
@@ -81,7 +107,7 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName } = inputs.Properties;
+    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     const common = new Common.Ls(regionId, credentials);
 
@@ -121,7 +147,7 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName } = inputs.Properties;
+    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     const common = new Common.Rm(regionId, credentials);
 
@@ -155,7 +181,7 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName } = inputs.Properties;
+    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     const common = new Common.Cp(regionId, credentials);
 
