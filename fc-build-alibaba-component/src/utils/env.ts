@@ -1,8 +1,7 @@
 import { Logger, report } from '@serverless-devs/core';
-import { LOGOPTION } from './constant';
+import { CONTEXT } from './constant';
 import ip from 'ip';
 import _ from 'lodash';
-import { CONTEXT } from './constant';
 import { IObject } from '../interface';
 
 const IDE_PYCHARM = 'pycharm';
@@ -105,7 +104,7 @@ export function generateDebugEnv(runtime: string, debugPort?: string, debugIde?:
         DEBUG_OPTIONS: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${debugPort}`,
       };
     case 'php7.2':
-      Logger.info(`using remote_ip ${remoteIp}`, LOGOPTION);
+      Logger.info(CONTEXT, `using remote_ip ${remoteIp}`);
       return {
         XDEBUG_CONFIG: `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${remoteIp}`,
       };

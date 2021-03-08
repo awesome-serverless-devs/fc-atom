@@ -1,36 +1,68 @@
-import { Component } from '@serverless-devs/s-core';
+import { HLogger, ILogger, getCredential, help, commandParse } from '@serverless-devs/core';
 import moment from 'moment';
+import _ from 'lodash';
 import SeachLogs from './utils/seachLogs';
-import HELP from './utils/help';
+import { HELP, CONTEXT } from './constant';
+import { ICredentials, isCredentials, ICommandParse } from './interface';
 
-export default class Logs extends Component {
-  logger = console;
+export default class Logs {
+  @HLogger(CONTEXT) logger: ILogger;
+
+  async getCredentials(
+    credentials: {} | ICredentials,
+    provider: string,
+    accessAlias?: string,
+  ): Promise<ICredentials> {
+    this.logger.debug(
+      `Obtain the key configuration, whether the key needs to be obtained separately: ${_.isEmpty(
+        credentials,
+      )}`,
+    );
+
+    if (isCredentials(credentials)) {
+      return credentials;
+    }
+    return await getCredential(provider, accessAlias);
+  }
 
   async logs(inputs) {
-    this.help(inputs, HELP);
+    const apts = {
+      boolean: ['tail', 'help'],
+      string: ['requestId', 'keyword'],
+      // number: ['startTime', 'endTime'],
+      alias: { tail: 't', startTime: 's', endTime: 'e', keyword: 'k', requestId: 'r', help: 'h' },
+    };
+    const comParse: ICommandParse = commandParse({ args: inputs.Args }, apts);
+    this.logger.debug(`commandParse response is: ${JSON.stringify(comParse)}`);
 
-    const { Properties: properties = {}, Credentials: credentials = {} } = inputs;
+    if (comParse.data.help) {
+      help(HELP);
+      return;
+    }
+
+    const { Provider: provider, AccessAlias: accessAlias } = inputs.Project;
+
+    const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    const properties = inputs.Properties;
 
     const { Region: region, LogConfig: logConfig, Topic: topic, Query: query } = properties;
     const projectName = logConfig.Project;
     const logStoreName = logConfig.LogStore;
 
-    const args = this.args(inputs.Args, undefined, ['s', 'startTime', 'e', 'endTime'], undefined);
-    const cmdParameters = args.Parameters || {};
-    const { t, tail } = args.Parameters;
+    const cmdParameters = comParse.data || {};
 
     const logsClient = new SeachLogs(credentials, region);
-    if (t || tail) {
+    if (cmdParameters.tail) {
       await logsClient.realtime(projectName, logStoreName, topic, query);
     } else {
       let from = moment().subtract(20, 'minutes').unix();
       let to = moment().unix();
+      let { startTime, endTime } = cmdParameters;
 
-      let startTime = cmdParameters.s || cmdParameters.startTime;
-      let endTime = cmdParameters.e || cmdParameters.endTime;
       if (startTime && endTime) {
-        startTime = /^\d+$/g.test(startTime) ? parseInt(startTime) : startTime;
-        endTime = /^\d+$/g.test(endTime) ? parseInt(endTime) : endTime;
+        // 支持时间戳和其他时间格式
+        startTime = /^\d+$/g.test(startTime) ? startTime : startTime;
+        endTime = /^\d+$/g.test(endTime) ? endTime : endTime;
 
         from = new Date(startTime).getTime() / 1000;
         to = new Date(endTime).getTime() / 1000;
@@ -39,10 +71,9 @@ export default class Logs extends Component {
         this.logger.warn('By default, find logs within 20 minutes...\n');
       }
 
-      const keyword = cmdParameters.k || cmdParameters.keyword;
-      const type = cmdParameters.t || cmdParameters.type;
-      const requestId = cmdParameters.r || cmdParameters.requestId;
+      const { keyword, type, requestId } = cmdParameters;
       const queryErrorLog = type === 'failed';
+
       const historyLogs = await logsClient.history(
         projectName,
         logStoreName,

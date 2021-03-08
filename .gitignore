@@ -2,6 +2,7 @@
 /dist
 /node_modules
 .s
+.fun
 /*/dist
 /*/node_modules
 

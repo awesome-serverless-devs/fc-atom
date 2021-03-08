@@ -5,7 +5,6 @@
     "@alicloud/fc2": "^2.2.1",
     "@alicloud/pop-core": "^1.7.10",
     "@serverless-devs/core": "0.0.29",
-    "@types/lodash": "^4.14.168",
     "async": "^3.2.0",
     "fs-extra": "^9.1.0",
     "inquirer": "^8.0.0",
@@ -18,6 +17,7 @@
   "devDependencies": {
     "@types/eslint": "^7.2.6",
     "@types/jest": "^26.0.10",
+    "@types/lodash": "^4.14.168",
     "@types/node": "14",
     "f2elint": "^0.4.4",
     "jest": "^26.4.0",

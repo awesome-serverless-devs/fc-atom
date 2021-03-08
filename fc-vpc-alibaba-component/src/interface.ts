@@ -30,3 +30,7 @@ export interface IDeleteProperties {
   vSwitchId: string;
   securityGroupId: string;
 }
+
+export function isCredentials(arg: any): arg is ICredentials {
+  return arg.AccessKeyID !== undefined;
+}

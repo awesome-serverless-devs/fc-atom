@@ -8,7 +8,7 @@ import generatePwdFile from './passwd';
 import findPathsOutofSharedPaths from './docker-support';
 import { resolveLibPathsFromLdConf, checkCodeUri } from './utils';
 import { generateDebugEnv, addEnv } from './env';
-import { LOGOPTION, CONTEXT } from './constant';
+import { CONTEXT } from './constant';
 import { IServiceProps, IFunctionProps, IObject, ICredentials } from '../interface';
 
 const pkg = require('../../package.json');
@@ -48,7 +48,7 @@ async function createContainer(opts): Promise<any> {
   const isWin = process.platform === 'win32';
   const isMac = process.platform === 'darwin';
 
-  Logger.debug(`Operating platform: ${process.platform}`, LOGOPTION);
+  Logger.debug(CONTEXT, `Operating platform: ${process.platform}`);
 
   if (opts && isMac) {
     if (opts.HostConfig) {
@@ -98,7 +98,7 @@ async function createContainer(opts): Promise<any> {
 
 async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> {
   const dockerInfo = await docker.info();
-  Logger.debug(`Docker info: ${JSON.stringify(dockerInfo)}`, LOGOPTION);
+  Logger.debug(CONTEXT, `Docker info: ${JSON.stringify(dockerInfo)}`);
 
   await detectDockerVersion(dockerInfo.ServerVersion || '');
 
@@ -174,8 +174,8 @@ async function pullImage(imageName: string): Promise<void> {
 
   return await new Promise((resolve, reject) => {
     Logger.info(
+      CONTEXT,
       `begin pulling image ${imageName}, you can also use docker pull ${imageName} to pull image by yourself.`,
-      LOGOPTION,
     );
 
     const onFinished = async (err) => {
@@ -348,7 +348,7 @@ export async function dockerRun(opts: any): Promise<any> {
   // see https://docs.docker.com/engine/api/v1.37/#operation/ContainerWait
   const exitRs = await container.wait();
 
-  Logger.debug(`Container wait: ${JSON.stringify(exitRs)} `, LOGOPTION);
+  Logger.debug(CONTEXT, `Container wait: ${JSON.stringify(exitRs)} `);
 
   containers.delete(container.id);
 
@@ -356,13 +356,13 @@ export async function dockerRun(opts: any): Promise<any> {
 }
 
 export async function pullImageIfNeed(imageName: string): Promise<void> {
-  Logger.debug(`Determine whether the docker image '${imageName}' exists.`, LOGOPTION);
+  Logger.debug(CONTEXT, `Determine whether the docker image '${imageName}' exists.`);
   const exist = await imageExist(imageName);
-  Logger.debug(`Iamge '${imageName}' ${exist ? 'exists' : 'not exists'}.`, LOGOPTION);
+  Logger.debug(CONTEXT, `Iamge '${imageName}' ${exist ? 'exists' : 'not exists'}.`);
 
   if (!exist) {
     await pullImage(imageName);
   } else {
-    Logger.info(`skip pulling image ${imageName}...`);
+    Logger.info(CONTEXT, `skip pulling image ${imageName}...`);
   }
 }

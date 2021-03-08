@@ -11,3 +11,7 @@ export interface IProperties {
   project: string;
   description?: string;
 }
+
+export function isCredentials(arg: any): arg is ICredentials {
+  return arg.AccessKeyID !== undefined;
+}

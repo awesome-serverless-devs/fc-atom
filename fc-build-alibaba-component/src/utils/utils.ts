@@ -1,5 +1,5 @@
 import { Logger } from '@serverless-devs/core';
-import { LOGOPTION } from './constant';
+import { CONTEXT } from './constant';
 import _ from 'lodash';
 import path from 'path';
 import readline from 'readline';
@@ -56,12 +56,12 @@ export function checkCodeUri(codeUri: string | ICodeUri): string {
   const src = _.isString(codeUri) ? codeUri : codeUri.Src;
 
   if (!src) {
-    Logger.info('No Src configured, skip building.', LOGOPTION);
+    Logger.info(CONTEXT, 'No Src configured, skip building.');
     return '';
   }
 
   if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
-    Logger.info('Artifact configured, skip building.', LOGOPTION);
+    Logger.info(CONTEXT, 'Artifact configured, skip building.');
     return '';
   }
   return src;
@@ -95,7 +95,7 @@ async function resolveLibPaths(confdPath: string) {
       .map(async (f) => await readLines(path.join(confdPath, f))),
   );
 
-  return _.flatten(confLines).reduce((lines, line) => {
+  return _.flatten(confLines).reduce((lines: any, line: any) => {
     // remove the first and last blanks and leave only the middle
     const found = line.match(/^\s*(\/.*)\s*$/);
     if (found && found[1].startsWith('/')) {
@@ -123,7 +123,7 @@ export async function resolveLibPathsFromLdConf(
     return envs;
   }
 
-  const libPaths = await resolveLibPaths(confdPath);
+  const libPaths: any = await resolveLibPaths(confdPath);
 
   if (!_.isEmpty(libPaths)) {
     envs.LD_LIBRARY_PATH = libPaths.map((path) => `/code/.fun/root${path}`).join(':');

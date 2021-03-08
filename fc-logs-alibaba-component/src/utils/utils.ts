@@ -7,7 +7,7 @@ export function sleep(ms: number) {
 }
 
 export function replaceLineBreak(logsList: object = {}) {
-  return _.mapValues(logsList, (value) => {
+  return _.mapValues(logsList, (value: any) => {
     value.message = value.message.replace(new RegExp(/(\r)/g), '\n');
     return value;
   });
