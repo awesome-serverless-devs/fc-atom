@@ -1,6 +1,5 @@
-import { HLogger, ILogger, HComponent, IComponent, report } from '@serverless-devs/core';
+import { HLogger, ILogger, report, commandParse } from '@serverless-devs/core';
 import _ from 'lodash';
-// import HELP from './utils/help';
 import Builder from './utils/builder';
 import { IBuildInput } from './interface';
 import { CONTEXT } from './utils/constant';
@@ -14,7 +13,6 @@ interface IOutput {
 
 export default class Build {
   @HLogger(CONTEXT) logger: ILogger;
-  @HComponent() component: IComponent;
 
   async build(inputs) {
     // this.help(inputs, HELP);
@@ -23,13 +21,15 @@ export default class Build {
     const projectName = inputs.Project.ProjectName;
     this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
 
-    // @ts-ignore: core 组件暂不支持 args 解析
-    // const { Commands: commands = [], Parameters: parameters } = this.component.args(inputs.Args);
-    const commands: string[] = inputs.Args.includes('local') ? ['local'] : ['docker'];
-    const parameters = {};
-    if (inputs.Args.includes('-d')) {
-      throw '暂不支持指定参数功能';
-    }
+    const apts = {
+      string: ['dockerfile'],
+      alias: { dockerfile: 'd' },
+    };
+    // @ts-ignore
+    const { _: commands = [], Parameters: parameters = {} } = commandParse(
+      { args: inputs.Args },
+      apts,
+    ).data;
 
     const { Region: region, Service: serviceProps, Function: functionProps } = inputs.Properties;
     const runtime = functionProps.Runtime;
