@@ -22,3 +22,7 @@ export interface IRoleDocument {
   Version: string;
   Statement: any;
 }
+
+export function isCredentials(arg: any): arg is ICredentials {
+  return arg.AccessKeyID !== undefined;
+}

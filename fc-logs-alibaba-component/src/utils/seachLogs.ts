@@ -1,7 +1,9 @@
-import Client from './client';
-import { sleep, replaceLineBreak } from './utils';
+import { HLogger, ILogger } from '@serverless-devs/core';
 import _ from 'lodash';
 import moment from 'moment';
+import Client from './client';
+import { CONTEXT } from '../constant';
+import { sleep, replaceLineBreak } from './utils';
 
 interface IGetLogs {
   projectName: string;
@@ -14,10 +16,10 @@ interface IGetLogs {
 
 export default class SeachLogs extends Client {
   slsClient = this.buildSlsClient();
-  logger = console;
+  @HLogger(CONTEXT) logger: ILogger;
 
   printLogs(historyLogs: object) {
-    _.values(historyLogs).forEach((data) => {
+    _.values(historyLogs).forEach((data: any) => {
       this.logger.info(`\n${data.message}`);
     });
   }
@@ -32,14 +34,14 @@ export default class SeachLogs extends Client {
     }
 
     if (keyword) {
-      logsClone = _.pickBy(logsClone, (value) => {
+      logsClone = _.pickBy(logsClone, (value: any) => {
         const replaceLog = value.message.replace(new RegExp(/(\r)/g), '\n');
         return replaceLog.indexOf(keyword) !== -1;
       });
     }
 
     if (queryErrorLog) {
-      logsClone = _.pickBy(logsClone, (value) => {
+      logsClone = _.pickBy(logsClone, (value: any) => {
         const replaceLog = value.message.replace(new RegExp(/(\r)/g), '\n');
         return replaceLog.indexOf(' [ERROR] ') !== -1 || replaceLog.indexOf('Error: ') !== -1;
       });
@@ -190,7 +192,7 @@ export default class SeachLogs extends Client {
 
       this.printLogs(replaceLogs);
 
-      const pulledTimeStamps = _.values(replaceLogs).map((data) => {
+      const pulledTimeStamps = _.values(replaceLogs).map((data: any) => {
         return data.timestamp;
       });
 
