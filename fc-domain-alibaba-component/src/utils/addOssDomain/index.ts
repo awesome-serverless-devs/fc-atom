@@ -46,7 +46,7 @@ export default class AddOssDomain {
 
     this.logger.debug('Put file to oss start...');
     const ossCredential = {
-      region,
+      region: `oss-${region}`,
       bucket,
       accessKeyId: credential.AccessKeyID,
       accessKeySecret: credential.AccessKeySecret,
@@ -55,10 +55,26 @@ export default class AddOssDomain {
     this.logger.debug('Put file to oss end.');
 
     const cdn = new Cdn(credential);
-    await cdn.makeOwner(bucket);
-    await cdn.addCdnDomain(domain, bucket, region);
+    await cdn.makeOwner(bucket, region, token);
+    this.logger.debug(`Add cdn domain start, domain is: ${domain}`);
+    await cdn.addCdnDomain(domain, bucket, `oss-${region}`);
+    this.logger.debug('Add cdn domain end.');
 
-    await fs.rmdirSync(savePath);
+    const cname = `${domain}.w.kunlunsl.com`;
+    this.logger.debug(
+      `The request ${constant.DOMAIN}/domain parameter is: { bucket: ${bucket}, region: ${region}, cname: ${cname}, token: ${token} }`,
+    );
+    const dRs = await request(`${constant.DOMAIN}/domain`, {
+      method: 'post',
+      body: { bucket, region, token, type: 'oss', cname },
+      form: true,
+      hint: { ...constant.HINT, loading: 'Get domain....' },
+    });
+    this.logger.debug(
+      `The request ${constant.DOMAIN}/verify response is: \n ${JSON.stringify(dRs, null, '  ')}`,
+    );
+
+    await fs.remove(savePath);
 
     return domain;
   }
