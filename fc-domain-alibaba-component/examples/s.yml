@@ -3,8 +3,12 @@ demo-1:
   Provider: alibaba
   Access: wss # 必填，获取密钥信息
   Properties:
-    type: fc
-    user: 1899690531354629
-    region: cn-hongkong
-    service: Authing
-    function: Authing
+    # type: fc
+    # user: 1899690531354629
+    # region: cn-hongkong
+    # service: Authing
+    # function: Authing
+
+    type: oss
+    region: oss-cn-hongkong
+    bucket: wss-test-domain

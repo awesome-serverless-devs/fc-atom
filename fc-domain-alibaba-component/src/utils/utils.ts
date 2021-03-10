@@ -1,5 +1,6 @@
 import { IV1Inputs, IInputs } from '@serverless-devs/core';
 import path from 'path';
+import Pop from '@alicloud/pop-core';
 import _ from 'lodash';
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,12 +18,9 @@ export const tranfromV1InputsToInputs = (inputs: IV1Inputs): IInputs => {
   });
 
   return output;
-}
+};
 
-export function getFcProperties(
-  regionId: string,
-  token: string,
-) {
+export function getFcProperties(regionId: string, token: string) {
   const service = 'serverless-devs-check';
   const funName = 'get-domain';
 
@@ -37,7 +35,7 @@ export function getFcProperties(
       handler: 'index.handler',
       filename: path.join(__dirname, 'getToken.zip'),
       runtime: 'nodejs8',
-      environmentVariables: { token }
+      environmentVariables: { token },
     },
     triggers: [
       {
@@ -49,8 +47,8 @@ export function getFcProperties(
           authType: 'anonymous',
           methods: ['POST', 'GET'],
         },
-      }
-    ]
+      },
+    ],
   };
   return properties;
 }
@@ -60,3 +58,15 @@ export function checkRs(rs: any) {
     throw new Error(rs.Body);
   }
 }
+
+export const getPopClient = (credentials, endpoint, apiVersion) => {
+  return new Pop({
+    endpoint: endpoint,
+    apiVersion: apiVersion,
+    accessKeyId: credentials.AccessKeyID,
+    accessKeySecret: credentials.AccessKeySecret,
+    opts: {
+      timeout: 10 * 1000,
+    },
+  });
+};

@@ -1,3 +1,10 @@
+export interface ICredentials {
+  AccountID: string;
+  AccessKeyID: string;
+  AccessKeySecret: string;
+  SecurityToken?: string;
+}
+
 export interface IFCTOKEN {
   type: string;
   user: number;
@@ -12,6 +19,6 @@ export interface IOSSTOKEN {
   region: string;
 }
 
-export function isFcToken (args: any): args is IFCTOKEN {
+export function isFcToken(args: any): args is IFCTOKEN {
   return args.service !== undefined;
 }

@@ -1,16 +1,15 @@
-import { HLogger, ILogger, request } from '@serverless-devs/core';
+import { HLogger, ILogger } from '@serverless-devs/core';
 import _ from 'lodash';
 import constant from './constant';
 import AddFcDomain from './utils/addFcDomain';
+import AddOssDomain from './utils/addOssDomain';
 import { IFCTOKEN, IOSSTOKEN, isFcToken } from './interface';
 
 export default class Compoent {
   @HLogger(constant.CONTEXT) logger: ILogger;
 
   async get(inputs) {
-    const {
-      ProjectName: projectName,
-    } = inputs.Project;
+    const { ProjectName: projectName } = inputs.Project;
     this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
 
     const params: IFCTOKEN | IOSSTOKEN = inputs.Properties;
@@ -18,10 +17,8 @@ export default class Compoent {
     if (isFcToken(params)) {
       return await AddFcDomain.domain(params, inputs);
     }
-    
-    const tokenRs = await request(`${constant.DOMAIN}/token`, { method: 'post', body: params, form: true, hint: constant.HINT });
-    this.logger.debug(`Get token response is: ${JSON.stringify(tokenRs, null, '  ')}`);
 
-    console.log(tokenRs);
+    const addOssDomain = new AddOssDomain();
+    return await addOssDomain.domain(params, inputs);
   }
 }

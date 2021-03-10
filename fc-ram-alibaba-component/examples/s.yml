@@ -1,5 +1,6 @@
 demo-1:
-  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-ram-alibaba-component/dist/index.js # 指向项目路径
+  # Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-ram-alibaba-component/dist/index.js # 指向项目路径
+  Component: ram
   Provider: alibaba
   Access: wss # 必填，获取密钥信息
   Properties:

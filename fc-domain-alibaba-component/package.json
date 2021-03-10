@@ -2,7 +2,10 @@
   "name": "heimanba",
   "version": "0.0.1",
   "dependencies": {
+    "@alicloud/pop-core": "^1.7.10",
     "@serverless-devs/core": "^0.0.30",
+    "ali-oss": "^6.13.2",
+    "fs-extra": "^9.1.0",
     "lodash": "^4.17.20",
     "promise-retry": "^2.0.1"
   },
@@ -10,6 +13,8 @@
     "@types/eslint": "^7.2.6",
     "@types/lodash": "^4.14.168",
     "@types/jest": "^26.0.10",
+    "@types/ali-oss": "^6.0.7",
+    "@types/fs-extra": "^9.0.8",
     "@types/node": "14",
     "f2elint": "^0.4.4",
     "jest": "^26.4.0",
@@ -21,7 +26,7 @@
     "webpack-cli": "^4.4.0"
   },
   "scripts": {
-    "package-zip": "zip -j ./dist/utils/getToken.zip ./src/utils/getTokenCode/index.js",
+    "package-zip": "zip -j ./dist/utils/getToken.zip ./src/utils/addFcDomain/getTokenCode/index.js",
     "dev": "npx tsc -w -p tsconfig.json",
     "prebuild": "rimraf dist",
     "build:ts": "npx tsc -p tsconfig.json",
