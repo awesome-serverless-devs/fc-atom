@@ -3,9 +3,9 @@ LogsApp:
   Provider: alibaba
   Access: wss # 密钥别名
   Properties:
-    Region: cn-shenzhen
-    LogConfig:
-      Project: aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1 # 服务日志配置 Project
-      LogStore: function-log # 服务日志配置 LogStore
-    Topic: guide # 服务名称
-    Query: guide-hello_world-nodejs12 # 函数名称或者 SLS 查询语句
+    region: cn-shenzhen
+    logConfig:
+      project: aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1 # 服务日志配置 Project
+      logStore: function-log # 服务日志配置 LogStore
+    topic: guide # 服务名称
+    query: guide-hello_world-nodejs12 # 函数名称或者 SLS 查询语句

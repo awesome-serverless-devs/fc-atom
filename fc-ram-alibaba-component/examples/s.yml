@@ -6,7 +6,7 @@ demo-1:
     name: test-ram # 必填
     description: test-ram
     service: fc.aliyuncs.com # 授权主题
-    policys:
+    policies:
       - FC-post-log-to-qwe123-lllll23123
       - AdministratorAccess
       - name: policy-test

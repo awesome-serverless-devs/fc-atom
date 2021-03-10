@@ -24,7 +24,7 @@ export default class RamCompoent {
     return await getCredential(provider, accessAlias);
   }
 
-  async create(inputs) {
+  async deploy(inputs) {
     this.logger.debug('Create ram start...');
 
     const {
@@ -68,7 +68,7 @@ export default class RamCompoent {
 
     const ram = new Ram(credentials);
     await ram.deleteRole(properties.name);
-    await ram.deletePolicys(properties.policys || []);
+    await ram.deletePolicys(properties.policies || []);
 
     this.logger.debug('Delete ram success.');
   }

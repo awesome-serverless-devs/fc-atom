@@ -9,7 +9,7 @@ demo-1:
     description: ram 描述 # 选填
     service: fc.aliyuns.com # 授权主体
     statement: # 策略配置
-    policys: # 选填
+    policies: # 选填
       - policy-name
       - name: policy 名称
         description: policy 描述 # 选填
