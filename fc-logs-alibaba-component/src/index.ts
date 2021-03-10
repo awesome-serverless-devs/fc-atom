@@ -3,7 +3,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import SeachLogs from './utils/seachLogs';
 import { HELP, CONTEXT } from './constant';
-import { ICredentials, isCredentials, ICommandParse } from './interface';
+import { ICredentials, isCredentials, ICommandParse, IProperties } from './interface';
 
 export default class Logs {
   @HLogger(CONTEXT) logger: ILogger;
@@ -43,11 +43,11 @@ export default class Logs {
     const { Provider: provider, AccessAlias: accessAlias } = inputs.Project;
 
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
-    const properties = inputs.Properties;
+    const properties: IProperties = inputs.Properties;
 
-    const { Region: region, LogConfig: logConfig, Topic: topic, Query: query } = properties;
-    const projectName = logConfig.Project;
-    const logStoreName = logConfig.LogStore;
+    const { region, logConfig, topic, query } = properties;
+    const projectName = logConfig.project;
+    const logStoreName = logConfig.logStore;
 
     const cmdParameters = comParse.data || {};
 

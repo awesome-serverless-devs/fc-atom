@@ -3,6 +3,16 @@ export interface ICommandParse {
   data?: any;
 }
 
+export interface IProperties{
+  region: string;
+  logConfig: {
+    project: string;
+    logStore: string;
+  };
+  topic: string;
+  query: string;
+}
+
 export interface IArgs {
   tail: boolean;
   help: boolean;

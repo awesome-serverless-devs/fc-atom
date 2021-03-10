@@ -9,13 +9,22 @@ export interface IProperties {
   name: string;
   service?: string;
   description?: string;
-  statement?: any;
-  policys: Array<string | IPolicy>;
+  statement?: IStatement[];
+  policies: Array<string | IPolicy>;
 }
 
 export interface IPolicy {
   name: string;
-  statement: any;
+  statement: IStatement[];
+}
+
+interface IStatement {
+  Effect: 'Allow' | 'Deny';
+  Action: string[];
+  Resource?: string | string[];
+  Condition?: string | string[] | object;
+  Principal?: object;
+  Permission?: 'Allow' | 'Deny';
 }
 
 export interface IRoleDocument {

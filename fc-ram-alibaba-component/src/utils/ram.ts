@@ -265,10 +265,10 @@ export default class R {
     );
   }
 
-  async mackPlicys(policys: Array<string | IPolicy>): Promise<IPolicyName[]> {
+  async mackPlicies(policies: Array<string | IPolicy>): Promise<IPolicyName[]> {
     const policyNamesArray: IPolicyName[] = [];
 
-    for (const policy of policys) {
+    for (const policy of policies) {
       if (_.isString(policy)) {
         // @ts-ignore: 动态类型判断，是字符串
         const policyName: string = policy;
@@ -277,6 +277,7 @@ export default class R {
           policyName,
           'System',
         );
+
         if (policyNameAvailable) {
           policyNamesArray.push({ name: policyName, type: 'System' });
           continue;
@@ -310,7 +311,7 @@ export default class R {
     return policyNamesArray;
   }
 
-  async mackRole({ name, service, statement, description }: IProperties): Promise<string> {
+  async makeRole({ name, service, statement, description }: IProperties): Promise<string> {
     const roleDocument = getStatement(service, statement);
 
     let arn = await this.checkRoleNotExistOrEnsureAvailable(name, roleDocument);
@@ -382,21 +383,21 @@ export default class R {
     }
   }
 
-  async create(propertie: IProperties) {
-    await this.mackRole(propertie);
+  async deploy(propertie: IProperties) {
+    await this.makeRole(propertie);
 
-    const { policys = [] } = propertie;
-    this.logger.debug(`Ram component policys config: ${policys}`);
-    const policyNamesArray = await this.mackPlicys(policys);
-    this.logger.debug(`Ram component policys names: ${policyNamesArray}`);
+    const { policies = [] } = propertie;
+    this.logger.debug(`Ram component policies config: ${policies}`);
+    const policyNamesArray = await this.mackPlicies(policies);
+    this.logger.debug(`Ram component policies names: ${policyNamesArray}`);
 
     this.logger.debug(`Request attachPolicysToRole start...`);
     await this.attachPolicysToRole(policyNamesArray, propertie.name);
     this.logger.debug(`Request attachPolicysToRole end.`);
   }
 
-  async deletePolicys(policys: Array<string | IPolicy>) {
-    for (const item of policys) {
+  async deletePolicys(policies: Array<string | IPolicy>) {
+    for (const item of policies) {
       if (_.isString(item)) {
         this.logger.warn(`${item} is a reference resource, skip delete.`);
         continue;
