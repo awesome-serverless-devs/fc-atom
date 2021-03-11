@@ -1,23 +1,24 @@
 Type: Component
-Name: fc-logs-alibaba-component
+Name: fc-nas
 Provider:
   - Alibaba
-Version: 0.1.1
-Description: logs 功能
+Version: 0.0.1
+Description: nas 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
   - Alibaba fc
 Category: 基础云服务
 Commands:
-  logs: 查看日志
-  create: 创建日志项目/仓库
-  remove: 删除日志项目
+  deploy: 创建 nas 资源
+  remove: 删除 nas 资源
+  ls: 查看文件资源
+  rm: 删除文件资源
+  cp: copy文件资源
 Service:
-  日志服务:
+  Others:
     Runtime: Node.JS
     Authorities:
-      - 创建日志项目/仓库
-      - 删除日志项目
+      - 增删改查 nas 文件资源
 Properties:
   region:
     Description: 地域
@@ -43,15 +44,4 @@ Properties:
         - us-west-1
         - us-east-1
         - ap-south-1
-  logstore:
-    Description: 日志项目
-    Required: true
-    Type: String
-  project:
-    Description: 日志仓库
-    Required: true
-    Type: String
-  description:
-    Description: 日志项目描述
-    Required: false
-    Type: String
+  

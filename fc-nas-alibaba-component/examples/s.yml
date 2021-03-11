@@ -1,7 +1,6 @@
 demo-1:
-  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-nas-alibaba-component/dist/index.js # 指向项目路径
+  Component: fc-nas
   Provider: alibaba
-  Access: wss # 必填，获取密钥信息
   Properties:
     regionId: cn-shenzhen
     # 辅助函数使用

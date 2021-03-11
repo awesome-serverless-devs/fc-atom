@@ -6,34 +6,44 @@ export interface IBuildInput {
   verbose?: boolean;
   region?: string;
   credentials?: ICredentials;
-  [key: string]: any;
 }
 
 interface ILogConfig {
-  Project: string;
-  LogStore: string;
-  EnableRequestMetrics?: boolean;
+  project: string;
+  logStore: string;
+  enableRequestMetrics?: boolean;
 }
 
 export interface IServiceProps {
-  Name: string;
-  LogConfig?: string | ILogConfig;
-  [key: string]: any;
+  name: string;
+  logConfig?: string | ILogConfig;
 }
 
 export interface IFunctionProps {
-  Name: string;
-  Runtime: string;
-  CodeUri: string | ICodeUri;
-  [key: string]: any;
+  name: string;
+  runtime: string;
+  codeUri: string | ICodeUri;
+  handler: string;
+  memorySize?: number;
+  timeout?: number;
+  initializer?: string;
+  initializationTimeout: number;
+  environmentVariables?: {
+    [key: string]: any;
+  };
+  customContainer?: {
+    image: string;
+    command?: string;
+    args?: string;
+  };
 }
 
 export interface ICodeUri {
-  Src?: string;
-  Bucket?: string;
-  Object?: string;
-  Excludes?: string[];
-  Includes?: string[];
+  src?: string;
+  bucket?: string;
+  object?: string;
+  excludes?: string[];
+  includes?: string[];
 }
 
 export interface IBuildDir {

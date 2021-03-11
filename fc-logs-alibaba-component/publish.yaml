@@ -11,7 +11,7 @@ Category: 基础云服务
 Commands:
   logs: 查看日志
 Service:
-  SLS:
+  Others:
     Runtime: Node.JS
     Authorities:
       - 查询日志

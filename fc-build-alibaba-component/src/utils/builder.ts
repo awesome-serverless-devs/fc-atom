@@ -4,7 +4,7 @@ import path from 'path';
 import _ from 'lodash';
 import fcBuilders from '@alicloud/fc-builders';
 import { execSync } from 'child_process';
-import { checkCodeUri, getArtifactPath } from './utils';
+import { checkCodeUri, getArtifactPath, getExcludeFilesEnv } from './utils';
 import generateBuildContainerBuildOpts from './build-opts';
 import { dockerRun } from './docker';
 import { CONTEXT } from './constant';
@@ -35,9 +35,7 @@ export default class Builder {
   }
 
   async buildImage(buildInput: IBuildInput): Promise<string> {
-    const { functionProps } = buildInput;
-
-    const customContainer = functionProps.CustomContainer;
+    const { customContainer } = buildInput.functionProps;
 
     if (!customContainer) {
       const errorMessage = "No 'CustomContainer' configuration found in Function.";
@@ -59,7 +57,7 @@ export default class Builder {
       throw new Error(errorMessage);
     }
 
-    const imageName = customContainer.Image;
+    const imageName = customContainer.image;
     if (!imageName) {
       const errorMessage = 'Function/CustomContainer/Image required.';
       await report(errorMessage, {
@@ -91,7 +89,7 @@ export default class Builder {
       this.logger.info('Use docker for building.');
     }
     const { functionProps } = buildInput;
-    const { CodeUri: codeUri, Runtime: runtime } = functionProps;
+    const { codeUri, runtime } = functionProps;
     const baseDir = process.cwd();
 
     this.logger.debug(`[${this.projectName}] Runtime is ${runtime}.`);
@@ -173,8 +171,10 @@ export default class Builder {
     functionProps,
     verbose = true,
   }: IBuildInput): Promise<string> {
+    process.env.BUILD_EXCLIUDE_FILES = getExcludeFilesEnv();
+
     const baseDir = process.cwd();
-    const runtime = functionProps.Runtime;
+    const { runtime } = functionProps;
 
     const stages = ['install', 'build'];
     const codePath = baseDir;

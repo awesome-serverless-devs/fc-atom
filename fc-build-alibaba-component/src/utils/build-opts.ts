@@ -52,7 +52,7 @@ export default async function generateBuildContainerBuildOpts({
   verbose,
   stages,
 }: IBuildOpts): Promise<any> {
-  const runtime = functionProps.Runtime;
+  const { runtime } = functionProps;
 
   const containerName = docker.generateRamdomContainerName();
 

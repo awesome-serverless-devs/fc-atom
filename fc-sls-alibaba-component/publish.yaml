@@ -1,5 +1,5 @@
 Type: Component
-Name: fc-logs-alibaba-component
+Name: sls
 Provider:
   - Alibaba
 Version: 0.1.1
@@ -9,7 +9,6 @@ Tags: #标签详情
   - Alibaba fc
 Category: 基础云服务
 Commands:
-  logs: 查看日志
   create: 创建日志项目/仓库
   remove: 删除日志项目
 Service:

@@ -1,5 +1,5 @@
 LogsApp:
-  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-logs-alibaba-component/dist/index.js # 项目路径
+  Component: logs # 项目路径
   Provider: alibaba
   Access: wss # 密钥别名
   Properties:

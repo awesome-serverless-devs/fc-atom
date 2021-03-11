@@ -1,15 +1,14 @@
 buildApp:
   Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-build-alibaba-component/dist/index.js # 项目路径
-  # Component: fc
   Provider: alibaba
   Properties:
-    Region: cn-shenzhen
-    Service:
-      Name: fc-com-test
-    Function:
-      Name: build-image
-      Runtime: custom-container
-      CustomContainer:
-        Image: 'registry.cn-shenzhen.aliyuncs.com/s-devs-generate/fc-com-test-build-image:latest'  # 仓库地址
-        Command: '["node"]'
-        Args: '["index.js"]'
+    region: cn-shenzhen
+    service:
+      name: fc-com-test
+    function:
+      name: build-image
+      runtime: custom-container
+      customContainer:
+        image: 'registry.cn-shenzhen.aliyuncs.com/s-devs-generate/fc-com-test-build-image:latest'  # 仓库地址
+        command: '["node"]'
+        args: '["index.js"]'
