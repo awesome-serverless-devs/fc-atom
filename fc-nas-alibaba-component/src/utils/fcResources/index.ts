@@ -1,6 +1,7 @@
 import { HLogger, ILogger, IV1Inputs, IInputs, load } from '@serverless-devs/core';
 import _ from 'lodash';
 import path from 'path';
+import Version from '../version';
 import { fcClient } from '../client';
 import { CONTEXT, FUNNAME } from '../../constant';
 import { ICredentials } from '../../interface';
@@ -11,7 +12,8 @@ const ENSURENASDIREXISTSERVICE = 'ensure-nas-dir-exist-service';
 const ENSURENASDIREXISTFUNCTION = 'nas_dir_checker';
 const ENSURENASDIREXISTFILENAME = path.join(__dirname, 'ensure-nas-dir-exist.zip');
 
-const NASSERVERFILENAME = path.join(__dirname, 'nas-server.zip');
+const getNasServerFile = async (): Promise<string> =>
+  path.join(__dirname, `nas-server-${await Version.getVersion()}.zip`);
 
 export default class Resources {
   @HLogger(CONTEXT) logger: ILogger;
@@ -35,17 +37,17 @@ export default class Resources {
   async remove(inputs: IV1Inputs) {
     const fcBase = await load('fc-base', 'alibaba');
 
-    const nasServiceInputs = this.transformYamlConfigToFcbaseConfig(inputs, '', false);
+    const nasServiceInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', false);
     nasServiceInputs.args = 'service -y';
     await fcBase.remove(nasServiceInputs);
 
-    const ensureNasDirInputs = this.transformYamlConfigToFcbaseConfig(inputs, '', true);
+    const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
     ensureNasDirInputs.args = 'service -y';
     await fcBase.remove(ensureNasDirInputs);
   }
 
   async deployNasService(inputs: IV1Inputs, mountPointDomain: string) {
-    const nasServiceInputs = this.transformYamlConfigToFcbaseConfig(
+    const nasServiceInputs = await this.transformYamlConfigToFcbaseConfig(
       inputs,
       mountPointDomain,
       false,
@@ -58,7 +60,7 @@ export default class Resources {
   }
 
   async deployEnsureNasDir(inputs: IV1Inputs, mountPointDomain: string) {
-    const ensureNasDirInputs = this.transformYamlConfigToFcbaseConfig(
+    const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(
       inputs,
       mountPointDomain,
       true,
@@ -83,11 +85,11 @@ export default class Resources {
     );
   }
 
-  transformYamlConfigToFcbaseConfig(
+  async transformYamlConfigToFcbaseConfig(
     inputs,
     mountPointDomain: string,
     isEnsureNasDirExist: boolean,
-  ): IInputs {
+  ) {
     const output: IInputs = {};
 
     const {
@@ -134,7 +136,7 @@ export default class Resources {
         service,
         name: funName,
         handler: 'index.handler',
-        filename: isEnsureNasDirExist ? ENSURENASDIREXISTFILENAME : NASSERVERFILENAME,
+        filename: isEnsureNasDirExist ? ENSURENASDIREXISTFILENAME : await getNasServerFile(),
         runtime: 'nodejs8',
       },
     };

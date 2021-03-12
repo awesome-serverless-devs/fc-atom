@@ -2,7 +2,7 @@ import { HLogger, ILogger } from '@serverless-devs/core';
 import { fcClient } from '../client';
 import { ICredentials } from '../../interface';
 import { CONTEXT } from '../../constant';
-import { isNasProtocol, parseNasUri } from './utils';
+import { isNasProtocol } from './utils';
 import { getHttpTriggerPath, commandsPath } from './generatePath';
 
 interface ILs {
@@ -11,7 +11,6 @@ interface ILs {
   isLongOpt: boolean;
   serviceName: string;
   functionName: string;
-  mountDir: string;
 }
 export default class Ls {
   fcClient: any;
@@ -22,11 +21,10 @@ export default class Ls {
   }
 
   async ls(options: ILs) {
-    const { targetPath, isAllOpt, isLongOpt, serviceName, functionName, mountDir } = options;
-    const nasPath = parseNasUri(targetPath, mountDir);
+    const { targetPath, isAllOpt, isLongOpt, serviceName, functionName } = options;
 
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
-    const lsCmd = 'ls ' + (isAllOpt ? '-a ' : '') + (isLongOpt ? '-l ' : '') + nasPath;
+    const lsCmd = 'ls ' + (isAllOpt ? '-a ' : '') + (isLongOpt ? '-l ' : '') + targetPath;
     const lsResponse = await this.fcClient.post(commandsPath(nasHttpTriggerPath), { cmd: lsCmd });
 
     this.logger.log(lsResponse.data.stdout);
@@ -38,6 +36,7 @@ export default class Ls {
       this.logger.info('Please input nas path!');
       return false;
     }
+
     if (!isNasProtocol(targetPath)) {
       this.logger.info('Please input correct nas path!');
       return false;

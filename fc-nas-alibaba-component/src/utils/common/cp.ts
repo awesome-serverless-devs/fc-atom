@@ -28,6 +28,7 @@ interface ICp {
   functionName: string;
   noTargetDirectory: boolean;
   mountDir: string;
+  nasDirYmlInput: string;
 }
 
 interface INasId {
@@ -54,7 +55,7 @@ export default class Cp {
   }
 
   async cp(options: ICp) {
-    const { srcPath, targetPath, mountDir } = options;
+    const { srcPath, targetPath, mountDir, nasDirYmlInput } = options;
     if (!srcPath || !targetPath) {
       this.logger.error('Input path empty error, please input again!');
       return;
@@ -69,6 +70,7 @@ export default class Cp {
         options.serviceName,
         options.functionName,
         mountDir,
+        nasDirYmlInput,
       );
     } else {
       throw new Error('Format of path not support');
@@ -81,9 +83,10 @@ export default class Cp {
     serviceName: string,
     functionName: string,
     mountDir: string,
+    nasDirYmlInput: string,
   ) {
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
-    const resolveNasPath = utils.parseNasUri(nasPath, mountDir);
+    const resolveNasPath = utils.parseNasUri(nasPath, mountDir, nasDirYmlInput);
 
     await fs.mkdirs(localDir);
 
@@ -156,8 +159,9 @@ export default class Cp {
       functionName,
       noTargetDirectory,
       mountDir,
+      nasDirYmlInput,
     } = options;
-    const nasPath = utils.parseNasUri(targetPath, mountDir);
+    const nasPath = utils.parseNasUri(targetPath, mountDir, nasDirYmlInput);
     this.logger.debug(`Paerse nas url is: ${nasPath}`);
 
     const resolvedSrc = utils.resolveLocalPath(path.resolve(srcPath));

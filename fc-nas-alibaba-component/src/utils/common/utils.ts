@@ -3,20 +3,31 @@ import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
 import walkdir from 'walkdir';
+import { nasUriHandler } from '../utils';
 
 const USER_HOME = os.homedir();
 const NAS_URI_PATTERN = /^nas:\/\/((?:\/[^/]+)*\/?)$/;
 
 export const isNasProtocol = (inputPath: string): boolean => inputPath.indexOf('nas://') === 0;
 
-export function parseNasUri(nasUri: string, mountDir): string {
-  const res = nasUri.match(NAS_URI_PATTERN);
+export function parseNasUri(nasUri: string, mountDir: string, nasDirYmlInput: string): string {
+  nasDirYmlInput = nasUriHandler(nasDirYmlInput);
+
+  const startStr = `nas:///${nasDirYmlInput}/`;
+
+  if (!nasUri.startsWith(startStr)) {
+    if (nasUri !== `nas:///${nasDirYmlInput}`) {
+      throw new Error(`Invalid nas path: ${nasUri}, nas path should start with ${startStr}`);
+    }
+  }
+
+  const res = nasUri.replace(`/${nasDirYmlInput}`, mountDir).match(NAS_URI_PATTERN);
 
   if (!res) {
     throw new Error(`Invalid nas path: ${nasUri}`);
   }
 
-  return `${mountDir}/${res[1]}`;
+  return res[1];
 }
 
 export function resolveLocalPath(localPath: string): string {

@@ -24,8 +24,11 @@ export async function promptForConfirmContinue(message: string): Promise<boolean
   return false;
 }
 
+export const nasUriHandler = (nasDirYmlInput: string) =>
+  nasDirYmlInput.startsWith('/') ? nasDirYmlInput.substr(1) : nasDirYmlInput;
+
 export function getMountDir(mountPointDomain: string, nasDir: string) {
   // 24e0349ccc-psq48.cn-shenzhen.nas.aliyuncs.com
   const [systemId, region] = mountPointDomain.split('.');
-  return `/mnt/${systemId}-${region}/${nasDir}`;
+  return `/mnt/${systemId}-${region}/${nasUriHandler(nasDir)}`;
 }

@@ -22,9 +22,7 @@ export default class Version {
       Logger.debug(CONTEXT, `Get verison response: ${JSON.stringify(res, null, '  ')}`);
       const curVersionId = res.data.curVersionId;
 
-      const versionFile = path.join(__dirname, 'fcResources', 'VERSION');
-
-      const version = (await fs.readFile(versionFile)).toString();
+      const version = await this.getVersion();
 
       Logger.debug(CONTEXT, `curVersionId is: ${curVersionId}, version is: ${version}.`);
 
@@ -42,5 +40,11 @@ export default class Version {
       Logger.warn(CONTEXT, 'Failed to request version, update function.');
       return false;
     }
+  }
+
+  static async getVersion() {
+    const versionFile = path.join(__dirname, 'fcResources', 'VERSION');
+
+    return (await fs.readFile(versionFile)).toString();
   }
 }

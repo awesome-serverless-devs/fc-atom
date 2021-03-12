@@ -13,7 +13,8 @@ import Nas from './utils/nas';
 import Common from './utils/common';
 import Version from './utils/version';
 import FcResources from './utils/fcResources';
-import { getMountDir } from './utils/utils';
+import { getMountDir, nasUriHandler } from './utils/utils';
+import { parseNasUri } from './utils/common/utils';
 
 export default class NasCompoent {
   @HLogger(constant.CONTEXT) logger: ILogger;
@@ -65,6 +66,7 @@ export default class NasCompoent {
     this.logger.debug(`Create nas success, mountPointDomain: ${mountPointDomain}`);
 
     const mountDir = getMountDir(mountPointDomain, inputs.Properties.nasDir);
+    inputs.Properties.nasDir = nasUriHandler(inputs.Properties.nasDir);
 
     if (!isNasServerStale) {
       inputs.Properties.mountDir = mountDir;
@@ -114,7 +116,12 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
+    const {
+      regionId,
+      serviceName,
+      functionName = constant.FUNNAME,
+      nasDir: nasDirYmlInput,
+    } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     inputs.Credentials = credentials;
 
@@ -130,8 +137,8 @@ export default class NasCompoent {
     const common = new Common.Ls(regionId, credentials);
 
     const argv_paras = commandData._ || [];
-    const nasDir: string = argv_paras[0];
-    if (!common.checkLsNasDir(nasDir)) {
+    const nasDirCommonInput: string = argv_paras[0];
+    if (!common.checkLsNasDir(nasDirCommonInput)) {
       help(constant.LSHELP);
       return;
     }
@@ -140,12 +147,11 @@ export default class NasCompoent {
     const isLongOpt: boolean = commandData.long;
 
     await common.ls({
-      targetPath: nasDir,
+      targetPath: parseNasUri(nasDirCommonInput, mountDir, nasDirYmlInput),
       isAllOpt,
       isLongOpt,
       serviceName,
       functionName,
-      mountDir,
     });
   }
 
@@ -172,7 +178,12 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
+    const {
+      regionId,
+      serviceName,
+      functionName = constant.FUNNAME,
+      nasDir: nasDirYmlInput,
+    } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     inputs.Credentials = credentials;
 
@@ -188,10 +199,9 @@ export default class NasCompoent {
     await common.rm({
       serviceName,
       functionName,
-      targetPath: argv_paras[0],
+      targetPath: parseNasUri(argv_paras[0], mountDir, nasDirYmlInput),
       recursive: commandData.r,
       force: commandData.f,
-      mountDir,
     });
   }
 
@@ -216,7 +226,12 @@ export default class NasCompoent {
       return;
     }
 
-    const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
+    const {
+      regionId,
+      serviceName,
+      functionName = constant.FUNNAME,
+      nasDir: nasDirYmlInput,
+    } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     inputs.Credentials = credentials;
 
@@ -238,6 +253,7 @@ export default class NasCompoent {
       functionName,
       noTargetDirectory: true,
       mountDir,
+      nasDirYmlInput,
     });
   }
 }

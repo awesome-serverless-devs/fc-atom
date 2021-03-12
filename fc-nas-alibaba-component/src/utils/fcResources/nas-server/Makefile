@@ -24,5 +24,5 @@ build: clean install
 	git log -n 1 --pretty="format:%h" > ./dist/VERSION
 
 package: build
-	cd ./dist && zip -r ../../../../../dist/utils/fcResources/nas-server.zip  * .[^.]* -x "*.zip"
+	cd ./dist && zip -r ../../../../../dist/utils/fcResources/nas-server-"$$(<./VERSION)".zip  * .[^.]* -x "*.zip"
 	cp -f ./dist/VERSION ../../../../dist/utils/fcResources/VERSION

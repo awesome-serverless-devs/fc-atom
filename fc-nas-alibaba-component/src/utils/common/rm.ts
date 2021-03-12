@@ -2,7 +2,7 @@ import { HLogger, ILogger } from '@serverless-devs/core';
 import { fcClient } from '../client';
 import { ICredentials } from '../../interface';
 import { CONTEXT } from '../../constant';
-import { parseNasUri, checkWritePerm } from './utils';
+import { checkWritePerm } from './utils';
 import { getHttpTriggerPath, commandsPath, statsPath } from './generatePath';
 
 interface IRm {
@@ -11,7 +11,6 @@ interface IRm {
   force: boolean;
   serviceName: string;
   functionName: string;
-  mountDir: string;
 }
 
 interface INasId {
@@ -28,9 +27,8 @@ export default class Ls {
   }
 
   async rm(options: IRm) {
-    const { targetPath, recursive, force, serviceName, functionName, mountDir } = options;
+    const { targetPath: fcPath, recursive, force, serviceName, functionName } = options;
 
-    const fcPath = parseNasUri(targetPath, mountDir);
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
     const statsRes = await this.statsRequest(fcPath, nasHttpTriggerPath);
     this.logger.debug(`Call ${fcPath} stats is: ${JSON.stringify(statsRes)}`);
