@@ -11,6 +11,7 @@ interface IRm {
   force: boolean;
   serviceName: string;
   functionName: string;
+  mountDir: string;
 }
 
 interface INasId {
@@ -27,9 +28,9 @@ export default class Ls {
   }
 
   async rm(options: IRm) {
-    const { targetPath, recursive, force, serviceName, functionName } = options;
+    const { targetPath, recursive, force, serviceName, functionName, mountDir } = options;
 
-    const fcPath = parseNasUri(targetPath);
+    const fcPath = parseNasUri(targetPath, mountDir);
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
     const statsRes = await this.statsRequest(fcPath, nasHttpTriggerPath);
     this.logger.debug(`Call ${fcPath} stats is: ${JSON.stringify(statsRes)}`);

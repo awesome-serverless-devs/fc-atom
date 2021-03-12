@@ -11,6 +11,7 @@ interface ILs {
   isLongOpt: boolean;
   serviceName: string;
   functionName: string;
+  mountDir: string;
 }
 export default class Ls {
   fcClient: any;
@@ -21,8 +22,8 @@ export default class Ls {
   }
 
   async ls(options: ILs) {
-    const { targetPath, isAllOpt, isLongOpt, serviceName, functionName } = options;
-    const nasPath = parseNasUri(targetPath);
+    const { targetPath, isAllOpt, isLongOpt, serviceName, functionName, mountDir } = options;
+    const nasPath = parseNasUri(targetPath, mountDir);
 
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
     const lsCmd = 'ls ' + (isAllOpt ? '-a ' : '') + (isLongOpt ? '-l ' : '') + nasPath;

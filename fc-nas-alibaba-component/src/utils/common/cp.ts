@@ -26,7 +26,8 @@ interface ICp {
   noClobber: boolean;
   serviceName: string;
   functionName: string;
-  noTargetDirectory?: boolean;
+  noTargetDirectory: boolean;
+  mountDir: string;
 }
 
 interface INasId {
@@ -53,7 +54,7 @@ export default class Cp {
   }
 
   async cp(options: ICp) {
-    const { srcPath, targetPath } = options;
+    const { srcPath, targetPath, mountDir } = options;
     if (!srcPath || !targetPath) {
       this.logger.error('Input path empty error, please input again!');
       return;
@@ -62,7 +63,13 @@ export default class Cp {
     if (this.isCpFromLocalToNas(srcPath, targetPath)) {
       await this.cpFromLocalToNas(options);
     } else if (this.isCpFromNasToLocal(srcPath, targetPath)) {
-      await this.cpFromNasToLocal(srcPath, targetPath, options.serviceName, options.functionName);
+      await this.cpFromNasToLocal(
+        srcPath,
+        targetPath,
+        options.serviceName,
+        options.functionName,
+        mountDir,
+      );
     } else {
       throw new Error('Format of path not support');
     }
@@ -73,9 +80,10 @@ export default class Cp {
     localDir: string,
     serviceName: string,
     functionName: string,
+    mountDir: string,
   ) {
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
-    const resolveNasPath = utils.parseNasUri(nasPath);
+    const resolveNasPath = utils.parseNasUri(nasPath, mountDir);
 
     await fs.mkdirs(localDir);
 
@@ -86,6 +94,7 @@ export default class Cp {
     if (!res.data) {
       throw new Error(`${resolveNasPath} is not exsit.`);
     }
+
     this.logger.debug('Path is exsit.');
 
     this.logger.log(`zipping ${resolveNasPath}`);
@@ -146,8 +155,9 @@ export default class Cp {
       serviceName,
       functionName,
       noTargetDirectory,
+      mountDir,
     } = options;
-    const nasPath = utils.parseNasUri(targetPath);
+    const nasPath = utils.parseNasUri(targetPath, mountDir);
     this.logger.debug(`Paerse nas url is: ${nasPath}`);
 
     const resolvedSrc = utils.resolveLocalPath(path.resolve(srcPath));
@@ -217,7 +227,10 @@ export default class Cp {
     });
 
     this.logger.debug(`Checking NAS tmp dir ${actualDstPath}`);
-    const tmpCheck = await this.fcClient.get(nasHttpTriggerPath + 'tmp/check', { actualDstPath });
+
+    const tmpCheck = await this.fcClient.get(nasHttpTriggerPath + 'tmp/check', {
+      remoteNasTmpDir: actualDstPath,
+    });
     this.logger.debug(`Tmp check response is: ${JSON.stringify(tmpCheck)}`);
     this.logger.debug(`Check done`);
 

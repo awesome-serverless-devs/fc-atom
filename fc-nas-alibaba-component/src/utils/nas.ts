@@ -22,13 +22,13 @@ export default class Nas {
   }
 
   async init(properties: IProperties): Promise<INasInitResponse> {
-    const { regionId, nasName, vpcId, zoneId, vSwitchId } = properties;
+    const { regionId, nasName, vpcId, zoneId, vSwitchId, storageType } = properties;
     let fileSystemId = await this.findNasFileSystem(regionId, nasName);
 
     if (!fileSystemId) {
       this.logger.info('Could not find default nas file system, ready to generate one');
 
-      fileSystemId = await this.createNasFileSystem(regionId, zoneId, nasName);
+      fileSystemId = await this.createNasFileSystem(regionId, zoneId, nasName, storageType);
 
       this.logger.info(
         `Default nas file system has been generated, fileSystemId is: ${fileSystemId}`,
@@ -153,7 +153,12 @@ export default class Nas {
     return null;
   }
 
-  async createNasFileSystem(regionId: string, zoneId: string, description: string) {
+  async createNasFileSystem(
+    regionId: string,
+    zoneId: string,
+    description: string,
+    storageType?: string,
+  ) {
     const zones = await this.nasClient.request(
       'DescribeZones',
       {
@@ -165,7 +170,7 @@ export default class Nas {
       `Call DescribeZones RegionId is: ${regionId}, response is: ${JSON.stringify(zones)}`,
     );
 
-    const storageType = await this.getStorageType(zones.Zones.Zone, zoneId, regionId);
+    storageType = await this.getStorageType(zones.Zones.Zone, zoneId, regionId, storageType);
 
     const params = {
       RegionId: regionId,
@@ -206,9 +211,22 @@ export default class Nas {
     return mountTargetDomain;
   }
 
-  async getStorageType(zones: any[], zoneId: string, region: string): Promise<string> {
+  async getStorageType(
+    zones: any[],
+    zoneId: string,
+    region: string,
+    storageType?: string,
+  ): Promise<string> {
     for (const item of zones) {
       if (item.ZoneId === zoneId) {
+        if (storageType) {
+          if (_.isEmpty(item[storageType].Protocol)) {
+            throw new Error(`There is no ${storageType} storage type in this area.`);
+          } else {
+            return storageType;
+          }
+        }
+
         if (!_.isEmpty(item.Performance.Protocol)) {
           return 'Performance';
         } else {

@@ -9,16 +9,14 @@ const NAS_URI_PATTERN = /^nas:\/\/((?:\/[^/]+)*\/?)$/;
 
 export const isNasProtocol = (inputPath: string): boolean => inputPath.indexOf('nas://') === 0;
 
-export function parseNasUri(nasUri: string): string {
-  if (nasUri.startsWith('nas:')) {
-    const res = nasUri.match(NAS_URI_PATTERN);
-    if (!res) {
-      throw new Error(`Invalid nas path: ${nasUri}`);
-    }
-    return res[1];
-  } else {
-    return nasUri;
+export function parseNasUri(nasUri: string, mountDir): string {
+  const res = nasUri.match(NAS_URI_PATTERN);
+
+  if (!res) {
+    throw new Error(`Invalid nas path: ${nasUri}`);
   }
+
+  return `${mountDir}/${res[1]}`;
 }
 
 export function resolveLocalPath(localPath: string): string {
