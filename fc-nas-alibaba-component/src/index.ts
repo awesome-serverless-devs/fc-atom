@@ -116,6 +116,7 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    inputs.Credentials = credentials;
 
     const isNasServerStale = await Version.isNasServerStale(
       credentials,
@@ -173,6 +174,7 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    inputs.Credentials = credentials;
 
     const isNasServerStale = await Version.isNasServerStale(
       credentials,
@@ -216,6 +218,7 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    inputs.Credentials = credentials;
 
     const isNasServerStale = await Version.isNasServerStale(
       credentials,
