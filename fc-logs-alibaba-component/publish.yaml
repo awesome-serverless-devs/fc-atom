@@ -1,25 +1,22 @@
 Type: Component
-Name: fc-logs-alibaba-component
+Name: logs
 Provider:
   - Alibaba
-Version: 0.1.1
-Description: logs 功能
+Version: 0.0.1
+Description: logs 查询日志的能力
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
-  - Alibaba fc
+  - Alibaba SLS
 Category: 基础云服务
 Commands:
   logs: 查看日志
-  create: 创建日志项目/仓库
-  remove: 删除日志项目
 Service:
-  日志服务:
+  Others:
     Runtime: Node.JS
     Authorities:
-      - 创建日志项目/仓库
-      - 删除日志项目
+      - 查询日志
 Properties:
-  Region:
+  region:
     Description: 地域
     Required: true
     Type:
@@ -43,20 +40,20 @@ Properties:
         - us-west-1
         - us-east-1
         - ap-south-1
-  LogConfig:
-    Project:
+  logConfig:
+    project:
       Description: 项目名称
       Required: true
       Type: String
-    LogStore:
-      Description: 仓库名称【创建/查看日志时必填】
-      Required: false
+    logStore:
+      Description: 仓库名称
+      Required: true
       Type: String
-    Topic:
-      Description: 【查看日志时必填】
-      Required: false
+    topic:
+      Description: 日志主题
+      Required: true
       Type: String
-    Query:
-      Description: 【查看日志时必填】
-      Required: false
+    query:
+      Description: 查询语句
+      Required: true
       Type: String

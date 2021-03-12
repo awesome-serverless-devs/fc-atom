@@ -2,15 +2,20 @@
 ````
 s deploy
 
+s cp -r -n ./folder nas:///folder
+
+s ls -a nas:///folder
+
+s cp -r -n nas:///folder ./folder-1
+
+s cp nas:///folder/demo-1.txt ./folder-2
+
+# 如果想将根目录下所有的文件cp到本地， 使用指令 s cp -r nas:///. ./folder
+
+s rm -r nas:///folder/README.md
+s rm -r nas:///folder
+
 s delete
-
-s cp -r -n ./folder nas:///mnt/WSS-NasTest
-
-s cp nas:///mnt/WSS-NasTest/demo-1.txt ./abc
-
-s ls -a nas:///mnt/WSS-NasTest
-
-s rm -r nas:///mnt/WSS-NasTest/folder
 ````
 
 配置字段描述

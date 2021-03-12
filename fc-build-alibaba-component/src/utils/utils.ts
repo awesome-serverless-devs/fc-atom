@@ -8,12 +8,22 @@ import fs from 'fs-extra';
 import { SUPPORTRUNTIMEBUILDList, BUILDCOMMANDList } from './constant';
 import { ICodeUri, IBuildDir, IObject, IServiceProps, IFunctionProps } from '../interface';
 
-const BUILDARTIFACTS = path.join('.fun', 'build', 'artifacts');
+const BUILDARTIFACTS = path.join('.s', 'build', 'artifacts');
 
 export function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+export function getExcludeFilesEnv(): string {
+  return [
+    path.join('.s', 'build'),
+    path.join('.s', 'nas'),
+    path.join('.s', 'tmp'),
+    path.join('.s', 'logs'),
+    's.yml',
+  ].join(';');
 }
 
 export function isCopyCodeBuildRuntime(runtime: string): boolean {
@@ -111,7 +121,7 @@ export async function resolveLibPathsFromLdConf(
 ): Promise<IObject> {
   const envs: IObject = {};
 
-  const confdPath = path.resolve(baseDir, codeUri, '.fun/root/etc/ld.so.conf.d');
+  const confdPath = path.resolve(baseDir, codeUri, '.s/root/etc/ld.so.conf.d');
 
   if (!(await fs.pathExists(confdPath))) {
     return envs;
@@ -126,7 +136,7 @@ export async function resolveLibPathsFromLdConf(
   const libPaths: any = await resolveLibPaths(confdPath);
 
   if (!_.isEmpty(libPaths)) {
-    envs.LD_LIBRARY_PATH = libPaths.map((path) => `/code/.fun/root${path}`).join(':');
+    envs.LD_LIBRARY_PATH = libPaths.map((path) => `/code/.s/root${path}`).join(':');
   }
   return envs;
 }
@@ -152,7 +162,7 @@ export async function saveBuildYaml({
   const rootArtifactsDir = path.join(baseDir, BUILDARTIFACTS);
 
   try {
-    functionProps.CodeUri = path.join(serviceProps.Name, functionProps.Name);
+    functionProps.codeUri = path.join(serviceProps.name, functionProps.name);
 
     const projectName = project.ProjectName;
     delete project.ProjectName;
@@ -167,9 +177,9 @@ export async function saveBuildYaml({
         [projectName]: {
           ...project,
           Properties: {
-            Region: region,
-            Service: serviceProps,
-            Function: functionProps,
+            region: region,
+            service: serviceProps,
+            function: functionProps,
           },
         },
       }),

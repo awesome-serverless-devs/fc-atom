@@ -94,7 +94,7 @@ export default class Resources {
       regionId,
       serviceName,
       functionName = FUNNAME,
-      roleName,
+      role,
       // vpcId,
       vSwitchId,
       securityGroupId,
@@ -113,7 +113,7 @@ export default class Resources {
       region: regionId,
       service: {
         name: service,
-        role: roleName,
+        role: role,
         vpcConfig: {
           // vpcId,
           securityGroupId,

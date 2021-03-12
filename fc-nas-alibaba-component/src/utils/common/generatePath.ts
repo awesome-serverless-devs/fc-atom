@@ -15,3 +15,5 @@ export const statsPath = (httpTriggerPath: string): string => httpTriggerPath + 
 export const pathExsit = (httpTriggerPath: string): string => httpTriggerPath + 'path/exsit';
 
 export const downloadPath = (httpTriggerPath: string): string => httpTriggerPath + 'download';
+
+export const versionPath = (httpTriggerPath: string): string => httpTriggerPath + 'version';

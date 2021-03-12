@@ -68,7 +68,7 @@ function generateNodePaths(envs: IObject, prefix: string): string {
 export function addEnv(envVars) {
   const envs = Object.assign({}, envVars);
 
-  const prefix = '/code/.fun';
+  const prefix = '/code/.s';
 
   envs.LD_LIBRARY_PATH = generateLibPath(envs, prefix);
   envs.PATH = generatePath(envs, prefix);

@@ -1,20 +1,25 @@
 import { HLogger, ILogger, request, load } from '@serverless-devs/core';
 import _ from 'lodash';
-import { getFcProperties, sleep, checkRs } from './utils';
-import constant from '../constant';
-import { IFCTOKEN } from '../interface';
+import { getFcProperties, sleep, checkRs } from '../utils';
+import constant from '../../constant';
+import { IFCTOKEN } from '../../interface';
 
-export default class Compoent {
+export default class AddFcDomain {
   @HLogger(constant.CONTEXT) static logger: ILogger;
 
   static async domain(params: IFCTOKEN, inputs): Promise<string> {
-
-    this.logger.debug(`The request ${constant.DOMAIN}/token parameter is: \n ${JSON.stringify(params, null, '  ')} `);
+    this.logger.debug(
+      `The request ${constant.DOMAIN}/token parameter is: \n ${JSON.stringify(
+        params,
+        null,
+        '  ',
+      )} `,
+    );
     const tokenRs = await request(`${constant.DOMAIN}/token`, {
       method: 'post',
       body: params,
       form: true,
-      hint: constant.HINT
+      hint: constant.HINT,
     });
     this.logger.debug(`Get token response is: \n ${JSON.stringify(tokenRs, null, '  ')}`);
     checkRs(tokenRs);
@@ -27,12 +32,18 @@ export default class Compoent {
     await fcBase.deploy(inputs);
     await sleep(1000);
 
-    this.logger.debug(`The request ${constant.DOMAIN}/domain parameter is: \n ${JSON.stringify({ ...params, token }, null, '  ')} `);
+    this.logger.debug(
+      `The request ${constant.DOMAIN}/domain parameter is: \n ${JSON.stringify(
+        { ...params, token },
+        null,
+        '  ',
+      )} `,
+    );
     const domainRs = await request(`${constant.DOMAIN}/domain`, {
       method: 'post',
       body: { ...params, token },
       form: true,
-      hint: constant.HINT
+      hint: { ...constant.HINT, loading: 'Get domain....' },
     });
 
     this.logger.debug(`Get token response is: \n ${JSON.stringify(domainRs, null, '  ')}`);

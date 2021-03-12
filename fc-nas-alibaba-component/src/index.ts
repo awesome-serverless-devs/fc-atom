@@ -11,7 +11,9 @@ import * as constant from './constant';
 import { ICredentials, IProperties, isCredentials, ICommandParse } from './interface';
 import Nas from './utils/nas';
 import Common from './utils/common';
+import Version from './utils/version';
 import FcResources from './utils/fcResources';
+import { getMountDir } from './utils/utils';
 
 export default class NasCompoent {
   @HLogger(constant.CONTEXT) logger: ILogger;
@@ -32,7 +34,7 @@ export default class NasCompoent {
     return await getCredential(provider, accessAlias);
   }
 
-  async deploy(inputs: IV1Inputs) {
+  async deploy(inputs: IV1Inputs, isNasServerStale: boolean) {
     this.logger.debug('Create nas start...');
 
     const {
@@ -62,10 +64,15 @@ export default class NasCompoent {
     }
     this.logger.debug(`Create nas success, mountPointDomain: ${mountPointDomain}`);
 
-    const fc = new FcResources(properties.regionId, credentials);
-    await fc.init(inputs, mountPointDomain);
+    const mountDir = getMountDir(mountPointDomain, inputs.Properties.nasDir);
 
-    return { mountPointDomain, fileSystemId };
+    if (!isNasServerStale) {
+      inputs.Properties.mountDir = mountDir;
+      const fc = new FcResources(properties.regionId, credentials);
+      await fc.init(inputs, mountPointDomain);
+    }
+
+    return { mountPointDomain, fileSystemId, mountDir };
   }
 
   async remove(inputs: IV1Inputs) {
@@ -109,6 +116,16 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+
+    const isNasServerStale = await Version.isNasServerStale(
+      credentials,
+      regionId,
+      serviceName,
+      functionName,
+    );
+
+    const { mountDir } = await this.deploy(inputs, isNasServerStale);
+
     const common = new Common.Ls(regionId, credentials);
 
     const argv_paras = commandData._ || [];
@@ -121,7 +138,14 @@ export default class NasCompoent {
     const isAllOpt: boolean = commandData.all;
     const isLongOpt: boolean = commandData.long;
 
-    await common.ls({ targetPath: nasDir, isAllOpt, isLongOpt, serviceName, functionName });
+    await common.ls({
+      targetPath: nasDir,
+      isAllOpt,
+      isLongOpt,
+      serviceName,
+      functionName,
+      mountDir,
+    });
   }
 
   async rm(inputs: IV1Inputs) {
@@ -149,14 +173,23 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
-    const common = new Common.Rm(regionId, credentials);
 
+    const isNasServerStale = await Version.isNasServerStale(
+      credentials,
+      regionId,
+      serviceName,
+      functionName,
+    );
+    const { mountDir } = await this.deploy(inputs, isNasServerStale);
+
+    const common = new Common.Rm(regionId, credentials);
     await common.rm({
       serviceName,
       functionName,
       targetPath: argv_paras[0],
       recursive: commandData.r,
       force: commandData.f,
+      mountDir,
     });
   }
 
@@ -183,8 +216,16 @@ export default class NasCompoent {
 
     const { regionId, serviceName, functionName = constant.FUNNAME } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
-    const common = new Common.Cp(regionId, credentials);
 
+    const isNasServerStale = await Version.isNasServerStale(
+      credentials,
+      regionId,
+      serviceName,
+      functionName,
+    );
+    const { mountDir } = await this.deploy(inputs, isNasServerStale);
+
+    const common = new Common.Cp(regionId, credentials);
     await common.cp({
       srcPath: argv_paras[0],
       targetPath: argv_paras[1],
@@ -193,6 +234,7 @@ export default class NasCompoent {
       serviceName,
       functionName,
       noTargetDirectory: true,
+      mountDir,
     });
   }
 }

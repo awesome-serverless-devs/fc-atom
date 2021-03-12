@@ -12,7 +12,7 @@ export interface IProperties {
   vpcId: string;
   vSwitchId: string;
   securityGroupId: string;
-  roleName: string;
+  role: string;
   description?: string;
 
   groupId: number;
@@ -20,7 +20,7 @@ export interface IProperties {
   nasName?: string;
   mountPointDomain?: string;
   zoneId: string;
-  mountDir: string; // 需要删除
+  storageType?: string;
   nasDir: string;
 }
 

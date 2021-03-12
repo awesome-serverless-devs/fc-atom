@@ -25,3 +25,4 @@ build: clean install
 
 package: build
 	cd ./dist && zip -r ../../../../../dist/utils/fcResources/nas-server.zip  * .[^.]* -x "*.zip"
+	cp -f ./dist/VERSION ../../../../dist/utils/fcResources/VERSION

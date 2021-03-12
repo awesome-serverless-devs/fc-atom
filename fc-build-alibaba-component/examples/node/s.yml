@@ -3,10 +3,10 @@ buildApp:
   # Component: fc
   Provider: alibaba
   Properties:
-    Region: cn-shenzhen
-    Service:
-      Name: fc-com-test
-    Function:
-      Name: build-image
-      Runtime: nodejs12
-      CodeUri: .
+    region: cn-shenzhen
+    service:
+      name: fc-com-test
+    function:
+      name: build-image
+      runtime: nodejs12
+      codeUri: .

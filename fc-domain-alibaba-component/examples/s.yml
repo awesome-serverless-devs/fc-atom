@@ -1,10 +1,13 @@
 demo-1:
-  Component: /Users/wb447188/Desktop/new-components/fc-atom/fc-domain-alibaba-component/dist/index.js # 指向项目路径
+  Component: domain
   Provider: alibaba
-  Access: wss # 必填，获取密钥信息
   Properties:
     type: fc
     user: 1899690531354629
     region: cn-hongkong
     service: Authing
     function: Authing
+
+    # type: oss
+    # region: cn-hongkong
+    # bucket: wss-test-domain

@@ -47,7 +47,7 @@ export default class RamCompoent {
     }
 
     const ram = new Ram(credentials);
-    await ram.create(properties);
+    await ram.deploy(properties);
 
     this.logger.debug('Create ram success.');
   }

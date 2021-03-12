@@ -1,25 +1,40 @@
 Type: Component
-Name: fc-logs-alibaba-component
+Name: ram
 Provider:
   - Alibaba
-Version: 0.1.1
-Description: logs 功能
+Version: 0.0.1
+Description: ram 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
-  - Alibaba fc
+  - Alibaba ram
 Category: 基础云服务
 Commands:
-  logs: 查看日志
-  create: 创建日志项目/仓库
-  remove: 删除日志项目
+  deploy: 创建角色/策略
+  delete: 删除角色/策略
 Service:
-  日志服务:
+  Others:
     Runtime: Node.JS
     Authorities:
-      - 创建日志项目/仓库
-      - 删除日志项目
+      - 创建角色/策略
+      - 删除角色/策略
 Properties:
   name:
-    Description: 日志名称
+    Description: 角色名称
     Required: true
     Type: String
+  description:
+    Description: 角色描述，仅第一次创建生效
+    Required: false
+    Type: String
+  service:
+    Description: 角色授权主体，statement 配置后不生效， statement 和 service 必填其一
+    Required: false
+    Type: String
+  statement:
+    Description: 角色授权 statement，配置后不生效 service 不生效， statement 和 service 必填其一
+    Required: false
+    Type: Any
+  policies:
+    Description: 策略配置
+    Required: false
+    Type: Any

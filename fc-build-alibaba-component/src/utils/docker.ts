@@ -6,7 +6,7 @@ import Docker from 'dockerode';
 import DraftLog from 'draftlog';
 import generatePwdFile from './passwd';
 import findPathsOutofSharedPaths from './docker-support';
-import { resolveLibPathsFromLdConf, checkCodeUri } from './utils';
+import { resolveLibPathsFromLdConf, checkCodeUri, getExcludeFilesEnv } from './utils';
 import { generateDebugEnv, addEnv } from './env';
 import { CONTEXT } from './constant';
 import { IServiceProps, IFunctionProps, IObject, ICredentials } from '../interface';
@@ -35,7 +35,7 @@ interface IDockerEnvs {
 }
 
 function generateFunctionEnvs(functionProps: IFunctionProps): IObject {
-  const environmentVariables = functionProps.Environment;
+  const { environmentVariables } = functionProps;
 
   if (!environmentVariables) {
     return {};
@@ -218,11 +218,11 @@ export async function generateDockerEnvs({
     Object.assign(envs, { FC_HTTP_PARAMS: httpParams });
   }
 
-  const confEnv = await resolveLibPathsFromLdConf(baseDir, checkCodeUri(functionProps.CodeUri));
+  const { runtime, codeUri } = functionProps;
+
+  const confEnv = await resolveLibPathsFromLdConf(baseDir, checkCodeUri(codeUri));
 
   Object.assign(envs, confEnv);
-
-  const runtime = functionProps.Runtime;
 
   if (debugPort && !debugArgs) {
     const debugEnv = generateDebugEnv(runtime, debugPort, debugIde);
@@ -242,21 +242,22 @@ export async function generateDockerEnvs({
 
   Object.assign(envs, {
     local: true,
+    BUILD_EXCLIUDE_FILES: getExcludeFilesEnv(),
     FC_ACCESS_KEY_ID: credentials.AccessKeyID,
     FC_ACCESS_KEY_SECRET: credentials.AccessKeySecret,
     FC_ACCOUND_ID: credentials.AccountID,
     FC_REGION: region,
     FC_FUNCTION_NAME: functionName,
-    FC_HANDLER: functionProps.Handler,
-    FC_MEMORY_SIZE: functionProps.MemorySize || 128,
-    FC_TIMEOUT: functionProps.Timeout || 3,
-    FC_INITIALIZER: functionProps.Initializer,
-    FC_INITIALIZATIONIMEOUT: functionProps.InitializationTimeout || 3,
+    FC_HANDLER: functionProps.handler,
+    FC_MEMORY_SIZE: functionProps.memorySize || 128,
+    FC_TIMEOUT: functionProps.timeout || 3,
+    FC_INITIALIZER: functionProps.initializer,
+    FC_INITIALIZATIONIMEOUT: functionProps.initializationTimeout || 3,
     FC_SERVICE_NAME: serviceName,
     // @ts-ignore: 多类型，动态判断
-    FC_SERVICE_LOG_PROJECT: ((serviceProps || {}).LogConfig || {}).Project,
+    FC_SERVICE_LOG_PROJECT: ((serviceProps || {}).LogConfig || {}).project,
     // @ts-ignore: 多类型，动态判断
-    FC_SERVICE_LOG_STORE: ((serviceProps || {}).LogConfig || {}).Logstore,
+    FC_SERVICE_LOG_STORE: ((serviceProps || {}).LogConfig || {}).logstore,
   });
 
   return addEnv(envs);

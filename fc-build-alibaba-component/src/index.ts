@@ -31,8 +31,8 @@ export default class Build {
       apts,
     ).data;
 
-    const { Region: region, Service: serviceProps, Function: functionProps } = inputs.Properties;
-    const runtime = functionProps.Runtime;
+    const { region, service: serviceProps, function: functionProps } = inputs.Properties;
+    const runtime = functionProps.runtime;
 
     try {
       checkCommands(commands, runtime);
@@ -53,8 +53,8 @@ export default class Build {
         AccessKeyID: '',
         AccessKeySecret: '',
       },
-      serviceName: serviceProps.Name,
-      functionName: functionProps.Name,
+      serviceName: serviceProps.name,
+      functionName: functionProps.name,
     };
 
     const builder = new Builder(projectName, commands, parameters);

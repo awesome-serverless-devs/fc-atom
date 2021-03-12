@@ -1,24 +1,25 @@
 Type: Component
-Name: fc-logs-alibaba-component
+Name: domain
 Provider:
   - Alibaba
-Version: 0.1.1
-Description: logs 功能
+Version: 0.0.1
+Description: 获取 domain
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
-  - Alibaba fc
+  - Alibaba cdn fc oss
 Category: 基础云服务
 Commands:
-  logs: 查看日志
-  create: 创建日志项目/仓库
-  remove: 删除日志项目
+  get: 获取 domain
 Service:
-  日志服务:
+  Others:
     Runtime: Node.JS
     Authorities:
-      - 创建日志项目/仓库
-      - 删除日志项目
+      - 获取 domain
 Properties:
+  type:
+    Description: 需要绑定的产品，目前仅支持 fc/oss
+    Required: true
+    Type: string
   region:
     Description: 地域
     Required: true
@@ -43,15 +44,19 @@ Properties:
         - us-west-1
         - us-east-1
         - ap-south-1
-  logstore:
-    Description: 日志项目
-    Required: true
-    Type: String
-  project:
-    Description: 日志仓库
-    Required: true
-    Type: String
-  description:
-    Description: 日志项目描述
+  user:
+    Description: 阿里云 uid【type 为 fc 时必填】
     Required: false
-    Type: String
+    Type: number
+  service:
+    Description: fc 服务名称【type 为 fc 时必填】
+    Required: false
+    Type: string
+  function:
+    Description: fc 函数名称【type 为 fc 时必填】
+    Required: false
+    Type: string
+  bucket:
+    Description: oss 存储桶名称【type 为 oss 时必填】
+    Required: false
+    Type: string
