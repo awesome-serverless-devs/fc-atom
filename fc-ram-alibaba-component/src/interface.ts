@@ -15,6 +15,7 @@ export interface IProperties {
 
 export interface IPolicy {
   name: string;
+  description?: string;
   statement: IStatement[];
 }
 

@@ -221,13 +221,18 @@ export default class Cp {
     srcPath: string,
     noClobber: boolean,
   ) {
-    const outputFileName = path.basename(srcPath);
+    const outputFileName = path.basename(path.resolve(srcPath));
     const outputFilePath = path.join(process.cwd(), '.s', 'zip');
+
     // @ts-ignore
     const { compressedSize } = await zip({
       codeUri: resolvedSrc,
       outputFileName: outputFileName,
       outputFilePath: outputFilePath,
+      exclude: [
+        path.relative(process.cwd(), outputFilePath),
+        path.relative(process.cwd(), path.join(process.cwd(), '.s', 'logs')),
+      ],
     });
 
     this.logger.debug(`Checking NAS tmp dir ${actualDstPath}`);
