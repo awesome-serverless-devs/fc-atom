@@ -1,0 +1,59 @@
+Type: Component
+Name: logs
+Provider:
+  - Alibaba
+Version: 0.0.1
+Description: logs 查询日志的能力
+HomePage: https://github.com/Serverless-Devs
+Tags: #标签详情
+  - Alibaba SLS
+Category: 基础云服务
+Commands:
+  logs: 查看日志
+Service:
+  Others:
+    Runtime: Node.JS
+    Authorities:
+      - 查询日志
+Properties:
+  region:
+    Description: 地域
+    Required: true
+    Type:
+      - Enum:
+        - cn-beijing
+        - cn-hangzhou
+        - cn-shanghai
+        - cn-qingdao
+        - cn-zhangjiakou
+        - cn-huhehaote
+        - cn-shenzhen
+        - cn-chengdu
+        - cn-hongkong
+        - ap-southeast-1
+        - ap-southeast-2
+        - ap-southeast-3
+        - ap-southeast-5
+        - ap-northeast-1
+        - eu-central-1
+        - eu-west-1
+        - us-west-1
+        - us-east-1
+        - ap-south-1
+  logConfig:
+    project:
+      Description: 项目名称
+      Required: true
+      Type: String
+    logStore:
+      Description: 仓库名称
+      Required: true
+      Type: String
+    topic:
+      Description: 日志主题
+      Required: true
+      Type: String
+    query:
+      Description: 查询语句
+      Required: true
+      Type: String
