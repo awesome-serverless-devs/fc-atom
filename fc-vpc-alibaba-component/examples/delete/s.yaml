@@ -1,0 +1,12 @@
+demo-1:
+  Component: vpc
+  Provider: alibaba
+  Access: default # 必填，获取密钥信息
+  Properties:
+    # s delete
+    regionId: cn-qingdao
+    vpcId: xxx
+    vSwitchId: xxx
+    securityGroupId: xxx
+
+
