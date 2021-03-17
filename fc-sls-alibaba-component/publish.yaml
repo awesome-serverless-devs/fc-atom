@@ -1,8 +1,8 @@
 Type: Component
-Name: sls
+Name: alicloud-sls
 Provider:
   - Alibaba
-Version: 0.1.1
+Version: 0.0.1
 Description: logs 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情

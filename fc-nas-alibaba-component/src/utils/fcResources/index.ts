@@ -52,7 +52,6 @@ export default class Resources {
       mountPointDomain,
       false,
     );
-    // console.log('nasServiceInputs:: ', JSON.stringify(nasServiceInputs, null, '   '));
 
     await this.fcBase.deploy(nasServiceInputs);
     this.logger.warn(`Waiting for trigger to be up`);
@@ -65,7 +64,6 @@ export default class Resources {
       mountPointDomain,
       true,
     );
-    // console.log('ensureNasDirInputs:: ', JSON.stringify(ensureNasDirInputs, null, '  '));
 
     await this.fcBase.deploy(ensureNasDirInputs);
     await sleep(1000);
@@ -168,6 +166,8 @@ export default class Resources {
     output.credentials = this.profile;
     output.project.component = 'fc-base';
     output.properties = properties;
+    output.args += '-y';
+    
     return output;
   }
 

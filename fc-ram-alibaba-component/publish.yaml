@@ -2,7 +2,7 @@ Type: Component
 Name: ram
 Provider:
   - Alibaba
-Version: 0.0.1
+Version: 0.0.2
 Description: ram 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
