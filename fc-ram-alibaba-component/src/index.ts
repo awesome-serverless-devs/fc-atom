@@ -24,7 +24,7 @@ export default class RamCompoent {
     return await getCredential(provider, accessAlias);
   }
 
-  async deploy(inputs) {
+  async deploy(inputs): Promise<string> {
     this.logger.debug('Create ram start...');
 
     const {
@@ -47,9 +47,10 @@ export default class RamCompoent {
     }
 
     const ram = new Ram(credentials);
-    await ram.deploy(properties);
+    const arn = await ram.deploy(properties);
 
     this.logger.debug('Create ram success.');
+    return arn;
   }
 
   async delete(inputs) {

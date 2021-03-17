@@ -27,10 +27,10 @@ export default class AddFcDomain {
     const token: string = tokenRs.Body.Token;
 
     inputs.Properties = getFcProperties(params.region, token);
-
+    inputs.args += ' -y';
     const fcBase = await load('fc-base', 'alibaba');
     await fcBase.deploy(inputs);
-    await sleep(1000);
+    await sleep(1500);
 
     this.logger.debug(
       `The request ${constant.DOMAIN}/domain parameter is: \n ${JSON.stringify(

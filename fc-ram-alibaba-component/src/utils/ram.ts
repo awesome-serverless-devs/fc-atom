@@ -383,8 +383,8 @@ export default class R {
     }
   }
 
-  async deploy(propertie: IProperties) {
-    await this.makeRole(propertie);
+  async deploy(propertie: IProperties): Promise<string> {
+    const arn = await this.makeRole(propertie);
 
     const { policies = [] } = propertie;
     this.logger.debug(`Ram component policies config: ${policies}`);
@@ -394,6 +394,8 @@ export default class R {
     this.logger.debug(`Request attachPolicysToRole start...`);
     await this.attachPolicysToRole(policyNamesArray, propertie.name);
     this.logger.debug(`Request attachPolicysToRole end.`);
+
+    return arn;
   }
 
   async deletePolicys(policies: Array<string | IPolicy>) {
