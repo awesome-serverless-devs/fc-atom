@@ -196,10 +196,18 @@ export default class NasCompoent {
     const { mountDir } = await this.deploy(inputs, isNasServerStale);
 
     const common = new Common.Rm(regionId, credentials);
+
+    const targetPath = parseNasUri(argv_paras[0], mountDir, nasDirYmlInput);
+    const isRootDir = `${mountDir}/.` === targetPath || `${mountDir}/` === targetPath;
+    if (isRootDir) {
+      this.logger.debug(`Rm root dir, mountDir is ${mountDir}, targetPath is ${targetPath}`);
+    }
+
     await common.rm({
       serviceName,
       functionName,
-      targetPath: parseNasUri(argv_paras[0], mountDir, nasDirYmlInput),
+      isRootDir,
+      targetPath: isRootDir ? mountDir : targetPath,
       recursive: commandData.r,
       force: commandData.f,
     });
@@ -231,6 +239,7 @@ export default class NasCompoent {
       serviceName,
       functionName = constant.FUNNAME,
       nasDir: nasDirYmlInput,
+      excludes,
     } = inputs.Properties;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
     inputs.Credentials = credentials;
@@ -254,6 +263,7 @@ export default class NasCompoent {
       noTargetDirectory: true,
       mountDir,
       nasDirYmlInput,
+      excludes,
     });
   }
 }

@@ -29,6 +29,7 @@ interface ICp {
   noTargetDirectory: boolean;
   mountDir: string;
   nasDirYmlInput: string;
+  excludes: undefined | string[];
 }
 
 interface INasId {
@@ -162,6 +163,7 @@ export default class Cp {
       noTargetDirectory,
       mountDir,
       nasDirYmlInput,
+      excludes,
     } = options;
     const nasPath = utils.parseNasUri(targetPath, mountDir, nasDirYmlInput);
     this.logger.debug(`Paerse nas url is: ${nasPath}`);
@@ -208,7 +210,14 @@ export default class Cp {
     }
 
     if (srcPathIsDir) {
-      await this.uploadFolder(resolvedSrc, actualDstPath, nasHttpTriggerPath, srcPath, noClobber);
+      await this.uploadFolder(
+        resolvedSrc,
+        actualDstPath,
+        nasHttpTriggerPath,
+        srcPath,
+        noClobber,
+        excludes,
+      );
     } else if (srcPathIsFile) {
       await this.uploadFile(resolvedSrc, actualDstPath, nasHttpTriggerPath);
     } else {
@@ -222,19 +231,20 @@ export default class Cp {
     nasHttpTriggerPath: string,
     srcPath: string,
     noClobber: boolean,
+    excludes: string[] = [],
   ) {
     const outputFileName = path.basename(path.resolve(srcPath));
     const outputFilePath = path.join(process.cwd(), '.s', 'zip');
+
+    excludes.push(path.relative(process.cwd(), outputFilePath));
+    excludes.push(path.relative(process.cwd(), path.join(process.cwd(), '.s', 'logs')));
 
     // @ts-ignore
     const { compressedSize } = await zip({
       codeUri: resolvedSrc,
       outputFileName: outputFileName,
       outputFilePath: outputFilePath,
-      exclude: [
-        path.relative(process.cwd(), outputFilePath),
-        path.relative(process.cwd(), path.join(process.cwd(), '.s', 'logs')),
-      ],
+      exclude: excludes,
     });
 
     this.logger.debug(`Checking NAS tmp dir ${actualDstPath}`);
@@ -250,7 +260,7 @@ export default class Cp {
     await this.uploadFile(fileHash, nasFile, nasHttpTriggerPath);
 
     this.logger.info('unzipping file');
-    const srcPathFiles = await utils.readDirRecursive(srcPath);
+    const srcPathFiles = await utils.readDirRecursive(srcPath, excludes);
 
     await this.unzipNasFileParallel(
       nasHttpTriggerPath,

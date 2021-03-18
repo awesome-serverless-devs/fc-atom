@@ -9,6 +9,7 @@ interface IRm {
   targetPath: string;
   recursive: boolean;
   force: boolean;
+  isRootDir: boolean;
   serviceName: string;
   functionName: string;
 }
@@ -27,7 +28,7 @@ export default class Ls {
   }
 
   async rm(options: IRm) {
-    const { targetPath: fcPath, recursive, force, serviceName, functionName } = options;
+    const { targetPath: fcPath, recursive, force, isRootDir, serviceName, functionName } = options;
 
     const nasHttpTriggerPath = getHttpTriggerPath(serviceName, functionName);
     const statsRes = await this.statsRequest(fcPath, nasHttpTriggerPath);
@@ -53,7 +54,10 @@ export default class Ls {
       this.logger.error(`Warning: ${warningInfo}`);
     }
 
-    const cmd = 'rm ' + (recursive ? '-R ' : '') + (force ? '-f ' : '') + fcPath;
+    const cmd = isRootDir
+      ? `cd ${fcPath} && rm -R ${force ? '-f ' : ''} *`
+      : `rm ${recursive ? '-R' : ''} ${force ? '-f ' : ''} ${fcPath}`;
+    this.logger.debug(`Rm cmd is ${cmd}`);
     const rmResponse = await this.fcClient.post(commandsPath(nasHttpTriggerPath), { cmd });
 
     this.logger.log(rmResponse.data.stdout);

@@ -2,6 +2,7 @@ import os from 'os';
 import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
+import ignore from 'ignore';
 import walkdir from 'walkdir';
 import { nasUriHandler } from '../utils';
 
@@ -147,7 +148,8 @@ function isEmptyDir(targetPath) {
   return false;
 }
 
-export function readDirRecursive(rootPath: string): Promise<any[]> {
+export function readDirRecursive(rootPath: string, excludes: string[]): Promise<any[]> {
+  const ig = ignore().add(excludes);
   return new Promise((resolve) => {
     const relativePaths = [];
 
@@ -160,6 +162,10 @@ export function readDirRecursive(rootPath: string): Promise<any[]> {
     })
       .on('path', (fullPath, stat) => {
         let relativePath = path.relative(rootPath, fullPath);
+
+        if (ig.ignores(relativePath)) {
+          return;
+        }
 
         if (process.platform === 'win32') {
           relativePath = relativePath.split(path.sep).join('/');

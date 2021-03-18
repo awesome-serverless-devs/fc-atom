@@ -16,6 +16,8 @@ s cp nas:///WSS-NasTest/f/demo-1.txt ./folder-2
 
 s rm -r nas:///WSS-NasTest/f/README.md
 s rm -r nas:///WSS-NasTest/f
+# 删除所有的文件
+s rm -r nas:///WSS-NasTest/.
 
 s delete
 ````
