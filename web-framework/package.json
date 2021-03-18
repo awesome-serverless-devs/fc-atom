@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "npx tsc -w -p tsconfig.json",
     "prebuild": "rimraf dist",
-    "package-zip": "cp -r src/lib/utils/pulumi dist/lib/utils",
+    "package-zip": "cp -r src/lib/pulumi-fc dist/lib/pulumi-fc",
     "build:ts": "npx tsc -p tsconfig.json",
     "build:component": "npx webpack --mode=production",
     "publish": "npm run build:component && s platform publish",

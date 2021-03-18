@@ -6,7 +6,7 @@ import { CONTEXT } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
-import { isFile, writeStrToFile } from '../../utils';
+import { isFile, writeStrToFile } from '../utils';
 import { IProperties } from '../../interface/inputs';
 
 export default class Component {

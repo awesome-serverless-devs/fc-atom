@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import async from 'async';
 import rimraf from 'rimraf';
 import md5File from 'md5-file';
-import { HLogger, ILogger, zip, spinner, unzip } from '@serverless-devs/core';
+import { HLogger, ILogger, zip, spinner, unzip, Logger } from '@serverless-devs/core';
 import { fcClient } from '../client';
 import { ICredentials } from '../../interface';
 import {
@@ -139,12 +139,14 @@ export default class Cp {
 
     this.logger.log('unzipping file');
     await unzip(localZipPath, path.resolve(localDir)).then(() => {
-      this.logger.log("'✔' unzip done!", 'green');
+      Logger.log("'✔' unzip done!", 'green');
     });
 
+    this.logger.debug(`fs remove ${localZipPath}`);
     // clean
     await fs.remove(localZipPath);
     // await fs.remove(localZipDirname);
+    this.logger.debug(`send clean request ${nasHttpTriggerPath} ${tmpNasZipPath}`);
     await this.sendCleanRequest(nasHttpTriggerPath, tmpNasZipPath);
     this.logger.log("'✔' download completed!", 'green');
   }
@@ -564,7 +566,7 @@ export default class Cp {
             this.logger.error(error);
             return;
           }
-          this.logger.log(error.code, error.message.toLowerCase());
+          this.logger.log(`${error.code || ''} ${error.message.toLowerCase()}`);
           // 当解压文件数大于 1 ，默认为解压文件数过多导致 unzip 指令超出指令长度限制导致的解压失败
           // 会将解压文件列表折半拆分后进行重试
           if (unzipFiles.length > 1) {
@@ -585,7 +587,7 @@ export default class Cp {
       }, 5);
 
       unzipQueue.drain(() => {
-        this.logger.info('unzip done');
+        Logger.info(constant.CONTEXT, 'unzip done');
         resolve('');
       });
       unzipQueue.push(filesArrQueue);

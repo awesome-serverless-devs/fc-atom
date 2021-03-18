@@ -5,9 +5,10 @@ import path from 'path';
 import _ from 'lodash';
 import { HELP, CONTEXT } from './constant';
 import { ICredentials, isCredentials, ICommandParse } from './interface/inputs';
-import { genStackId } from './utils';
+import { genStackId } from './lib/utils';
 import { cpPulumiCodeFiles, genPulumiInputs } from './lib/pulumi';
 import * as shell from 'shelljs';
+import NasComponent from './lib/nasComponent';
 import Framework from './lib/framework';
 
 const PULUMI_CACHE_DIR: string = path.join(os.homedir(), '.s', 'cache', 'pulumi', 'web-framework');
@@ -63,7 +64,8 @@ export default class Logs {
       return;
     }
 
-    const { credentials, properties, project } = await this.handlerInputs(inputs);
+    const outputInputs = await this.handlerInputs(inputs);
+    const { credentials, properties, project } = outputInputs;
 
     const assumeYes = comParse.data?.assumeYes;
     const stackId = genStackId(credentials.AccountID, properties.region, properties.service.name);
@@ -77,9 +79,8 @@ export default class Logs {
     const f = new Framework(properties, fcConfigJsonFile, credentials.AccountID);
     await f.addConfigToJsonFile(assumeYes, _.cloneDeep(inputs));
 
-    // return;
-    // await cpPulumiCodeFiles(pulumiStackDir);
-    // shell.exec(`cd ${pulumiStackDir} && npm i`, { silent: true });
+    await cpPulumiCodeFiles(pulumiStackDir);
+    shell.exec(`cd ${pulumiStackDir} && npm i`, { silent: true });
 
     // 部署 fc 资源
     const pulumiComponentIns = await load('pulumi-alibaba', 'alibaba');
@@ -96,8 +97,11 @@ export default class Logs {
       this.logger.error(`deploy error: ${upRes.stderr}`);
       return;
     }
+
+    await NasComponent.init(properties, _.cloneDeep(inputs));
+
     // 返回结果
-    return upRes.stdout;
+    return '';
   }
 
   async remove(inputs) {
@@ -128,7 +132,7 @@ export default class Logs {
       this.logger.error(`destroy error: ${upRes.stderr}`);
       return;
     }
-    // 返回结果
-    return upRes.stdout;
+
+    await NasComponent.remove(properties, _.cloneDeep(inputs));
   }
 }

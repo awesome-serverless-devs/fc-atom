@@ -1,20 +1,15 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
-import Pop from '@alicloud/pop-core';
 import { CONTEXT } from '../../constant';
-import { promptForConfirmContinue } from '../../utils';
+import { promptForConfirmContinue } from '../utils';
+import Client from '../client';
 import { ICredentials } from '../../interface/inputs';
 
 export default class Component {
   @core.HLogger(CONTEXT) static logger: core.ILogger;
 
   static async get(regionId: string, profile: ICredentials, assumeYes: boolean): Promise<string> {
-    const nasClient = new Pop({
-      endpoint: `http://nas.${regionId}.aliyuncs.com`,
-      apiVersion: '2017-06-26',
-      accessKeyId: profile.AccessKeyID,
-      accessKeySecret: profile.AccessKeySecret,
-    });
+    const nasClient = Client.pop(`http://nas.${regionId}.aliyuncs.com`, profile);
 
     const zones: any = await nasClient.request(
       'DescribeZones',

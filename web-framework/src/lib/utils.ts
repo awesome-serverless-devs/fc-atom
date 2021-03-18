@@ -1,6 +1,6 @@
 import fse from 'fs-extra';
 import inquirer from 'inquirer';
-import { CONTEXT } from './constant';
+import { CONTEXT } from '../constant';
 import { Logger } from '@serverless-devs/core';
 
 export function genStackId(accountId: string, region: string, serviceName: string): string {
