@@ -1,12 +1,12 @@
 Test:
-  Component: /Users/wb447188/Desktop/new-components/fc-atom/web-framework/dist/index.js # 项目路径
+  Component: web-framework # 项目路径
   Provider: alibaba
-  Access: wss # 密钥别名
-  # Extends:
-  #   deploy:
-  #     - Hook: npm install --production
-  #       Path: ./src
-  #       Pre: true
+  # Access: wss # 密钥别名
+  Extends:
+    deploy:
+      - Hook: npm install --production
+        Path: ./src
+        Pre: true
   Properties:
     region: cn-hongkong
     service:
@@ -17,7 +17,6 @@ Test:
       name: test
       service: test-wss-web
       description: 测试环节
-      # runtime: custom-container
       customContainerConfig:
         image: registry.cn-hongkong.aliyuncs.com/s-devs-generate/fc-com-test-build-image:v0.1
         command: '["node", "index"]'
@@ -39,4 +38,3 @@ Test:
           - POST
           - PUT
     domain: auto
-

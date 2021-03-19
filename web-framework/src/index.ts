@@ -118,7 +118,12 @@ export default class Logs {
     const stackId = genStackId(credentials.AccountID, properties.region, properties.service.name);
     const pulumiStackDir = path.join(PULUMI_CACHE_DIR, stackId);
 
-    // 部署 fc 资源
+    try {
+      await NasComponent.remove(properties, _.cloneDeep(inputs));
+    } catch (ex) {
+      this.logger.debug(ex);
+    }
+
     const pulumiComponentIns = await load('pulumi-alibaba', 'alibaba');
     const pulumiInputs = genPulumiInputs(
       credentials,
@@ -132,7 +137,5 @@ export default class Logs {
       this.logger.error(`destroy error: ${upRes.stderr}`);
       return;
     }
-
-    await NasComponent.remove(properties, _.cloneDeep(inputs));
   }
 }

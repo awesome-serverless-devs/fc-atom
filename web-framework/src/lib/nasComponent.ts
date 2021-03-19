@@ -1,6 +1,5 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
-import path from 'path';
 import { CONTEXT } from '../constant';
 import Client from './client';
 import { ICredentials, IProperties } from '../interface/inputs';

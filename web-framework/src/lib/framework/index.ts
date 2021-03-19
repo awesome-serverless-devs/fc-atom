@@ -1,12 +1,11 @@
 import * as core from '@serverless-devs/core';
-import fse from 'fs-extra';
 import _ from 'lodash';
 import * as IReturn from './interface';
 import { CONTEXT } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
-import { isFile, writeStrToFile } from '../utils';
+import { writeStrToFile } from '../utils';
 import { IProperties } from '../../interface/inputs';
 
 export default class Component {
@@ -28,20 +27,6 @@ export default class Component {
 
   async addConfigToJsonFile(assumeYes: boolean, inputs) {
     await this.createConfigFile(inputs, assumeYes);
-    // if (await this.configFileExists()) {
-    //   // update
-    //   await this.addConfig(assumeYes);
-    // } else {
-    //   // create
-    //   await this.createConfigFile();
-    // }
-  }
-
-  async configFileExists(): Promise<boolean> {
-    if ((await fse.pathExists(this.configFile)) && (await isFile(this.configFile))) {
-      return true;
-    }
-    return false;
   }
 
   async createConfigFile(inputs, assumeYes: boolean): Promise<void> {
@@ -152,6 +137,8 @@ export default class Component {
       securityGroup: {
         description: 'web-framework-generate',
         name: this.autoName,
+        securityGroupType: 'normal',
+        InnerAccessPolicy: 'Accept',
         vpcId: '',
       },
     };
