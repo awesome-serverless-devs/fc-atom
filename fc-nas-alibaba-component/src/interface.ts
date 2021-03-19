@@ -21,6 +21,8 @@ export interface IProperties {
   mountPointDomain?: string;
   zoneId: string;
   storageType?: string;
+  fileSystemId?: string;
+  excludes?: string[];
   nasDir: string;
 }
 

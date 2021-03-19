@@ -7,11 +7,13 @@
     "@serverless-devs/core": "0.0.29",
     "async": "^3.2.0",
     "fs-extra": "^9.1.0",
+    "ignore": "^5.1.8",
     "inquirer": "^8.0.0",
     "lodash": "^4.17.20",
     "md5-file": "^5.0.0",
     "node-machine-id": "^1.1.12",
     "os-locale": "^5.0.0",
+    "rimraf": "^3.0.2",
     "walkdir": "^0.4.1"
   },
   "devDependencies": {
@@ -21,7 +23,6 @@
     "@types/node": "14",
     "f2elint": "^0.4.4",
     "jest": "^26.4.0",
-    "rimraf": "^3.0.2",
     "ts-jest": "^26.2.0",
     "ts-loader": "^8.0.14",
     "typescript": "^3.9.7",

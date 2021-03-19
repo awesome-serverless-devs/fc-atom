@@ -16,8 +16,8 @@ demo-1:
     # 辅助函数 & 初始化 nas
     groupId: 10003
     userId: 10003
-    nasName: default_nas_created_by_fc_fun1
     # mountPointDomain: # 指定配置
+    nasName: default_nas_created_by_fc_fun1
     zoneId: cn-shenzhen-a
     nasDir: WSS-NasTest
     # storageType: Performance # Capacity

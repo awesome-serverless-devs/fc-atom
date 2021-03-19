@@ -41,9 +41,9 @@ export default class Resources {
     nasServiceInputs.args = 'service -y';
     await fcBase.remove(nasServiceInputs);
 
-    const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
-    ensureNasDirInputs.args = 'service -y';
-    await fcBase.remove(ensureNasDirInputs);
+    // const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
+    // ensureNasDirInputs.args = 'service -y';
+    // await fcBase.remove(ensureNasDirInputs);
   }
 
   async deployNasService(inputs: IV1Inputs, mountPointDomain: string) {
@@ -81,6 +81,10 @@ export default class Resources {
       f.name,
       JSON.stringify([path.join(mountDir, nasDir)]),
     );
+
+    // 资源不常用，提前删除
+    ensureNasDirInputs.args = 'service -y';
+    await this.fcBase.remove(ensureNasDirInputs);
   }
 
   async transformYamlConfigToFcbaseConfig(
@@ -167,7 +171,7 @@ export default class Resources {
     output.project.component = 'fc-base';
     output.properties = properties;
     output.args += '-y';
-    
+
     return output;
   }
 

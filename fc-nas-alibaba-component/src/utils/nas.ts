@@ -62,10 +62,18 @@ export default class Nas {
 
   async remove(properties: IProperties) {
     const { regionId, nasName, vpcId, vSwitchId } = properties;
-    const fileSystemId = await this.findNasFileSystem(regionId, nasName);
-    if (!fileSystemId) {
-      this.logger.warn(`${nasName} not found under ${regionId}.`);
+    let fileSystemId = properties.fileSystemId;
+    if (!nasName || !fileSystemId) {
+      this.logger.debug('Not found nasName or fileSystemId,skip remove nas.');
       return;
+    }
+
+    if (nasName) {
+      fileSystemId = await this.findNasFileSystem(regionId, nasName);
+      if (!fileSystemId) {
+        this.logger.warn(`${nasName} not found under ${regionId}.`);
+        return;
+      }
     }
 
     const mountTargetDomain = await this.findMountTarget(regionId, fileSystemId, vpcId, vSwitchId);

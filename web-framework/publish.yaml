@@ -1,20 +1,21 @@
 Type: Component
-Name: logs
+Name: web-framework
 Provider:
   - Alibaba
 Version: 0.0.1
-Description: logs 查询日志的能力
+Description: 上层组件部署和删除的能力
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
   - Alibaba SLS
 Category: 基础云服务
 Commands:
-  logs: 查看日志
+  deploy: 部署能力
+  remove: 删除能力
 Service:
   Others:
     Runtime: Node.JS
     Authorities:
-      - 查询日志
+      - 管理员权限
 Properties:
   region:
     Description: 地域
@@ -40,20 +41,124 @@ Properties:
         - us-west-1
         - us-east-1
         - ap-south-1
-  logConfig:
-    project:
-      Description: 项目名称
+  service:
+    name:
       Required: true
-      Type: String
-    logStore:
-      Description: 仓库名称
+      Description: '名称'
+      Type:
+        - String
+    description:
+      Required: false
+      Description: '描述'
+      Type:
+        - String
+    logConfig:
+      Required: false
+      Description: '日志'
+      Type:
+        - Boolean
+  function:
+    name:
       Required: true
-      Type: String
-    topic:
-      Description: 日志主题
+      Description: '名称'
+      Type:
+        - String
+    service:
       Required: true
-      Type: String
-    query:
-      Description: 查询语句
+      Description: '名称'
+      Type:
+        - String
+    description:
+      Required: false
+      Description: '描述'
+      Type:
+        - String
+    customContainerConfig:
       Required: true
-      Type: String
+      Description: '描述'
+      Type:
+        - Struct:
+          image:
+            Required: true
+            Description: '名称'
+            Type:
+              - String
+          command:
+            Required: true
+            Description: '启动命令, string array, 如: ["python", "server.py"]'
+            Type:
+              - String
+          args:
+            Required: true
+            Description: '启动端口, string array, 如: ["--port", "9000"]'
+            Type:
+              - String
+    caPort:
+      Required: true
+      Description: '监听端口'
+      Type:
+        - Number
+    code:
+      Required: true
+      Description: '代码包配置'
+      Type:
+        - Struct:
+          src:
+            Required: true
+            Description: '代码包本地路径'
+            Type:
+              - String
+          excludes:
+            Required: false
+            Description: '代码包本地路径不包含部分，写法参考 .gitignore'
+            Type:
+              - List<String>
+    environmentVariables:
+      Required: false
+      Description: '环境变量配置 [Environmentkey: String]: EnvironmentValue'
+      Type:
+        - Any
+  trigger:
+    name:
+      Required: true
+      Description: '名称'
+      Type:
+        - String
+    service:
+      Required: true
+      Description: '名称'
+      Type:
+        - String
+    function:
+      Required: true
+      Description: '名称'
+      Type:
+        - String
+    type:
+      Required: true
+      Description: '类型'
+      Type:
+        - Enum:
+          - http
+    config:
+      Required: true
+      Description: '触发器配置'
+      Type:
+        - Struct:
+          authType:
+            Required: true
+            Description: '授权类型'
+            Type:
+              - Enum:
+                - anonymous
+                - function
+          methods:
+            Required: true
+            Description: '请求方法'
+            Type:
+              - List<String>
+  domain:
+    Required: true
+    Description: '自定义域名'
+    Type:
+      - String
