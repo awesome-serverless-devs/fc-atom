@@ -41,9 +41,9 @@ export default class Resources {
     nasServiceInputs.args = 'service -y';
     await fcBase.remove(nasServiceInputs);
 
-    // const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
-    // ensureNasDirInputs.args = 'service -y';
-    // await fcBase.remove(ensureNasDirInputs);
+    const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
+    ensureNasDirInputs.args = 'service -y';
+    await fcBase.remove(ensureNasDirInputs);
   }
 
   async deployNasService(inputs: IV1Inputs, mountPointDomain: string) {
