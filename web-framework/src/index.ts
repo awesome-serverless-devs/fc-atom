@@ -13,7 +13,7 @@ import Framework from './lib/framework';
 
 const PULUMI_CACHE_DIR: string = path.join(os.homedir(), '.s', 'cache', 'pulumi', 'web-framework');
 
-export default class Logs {
+export default class Component {
   @HLogger(CONTEXT) logger: ILogger;
 
   async getCredentials(

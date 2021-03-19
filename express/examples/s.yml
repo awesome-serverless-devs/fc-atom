@@ -1,0 +1,18 @@
+LogsApp:
+  Component: /Users/wb447188/Desktop/new-components/fc-atom/express/dist/index.js # 项目路径
+  Provider: alibaba
+  Access: wss # 密钥别名
+  Properties:
+    region: cn-hongkong
+    service: 
+      name: express-test
+      description: express示例
+    function:
+      name: test
+      code:
+        src: ./src
+        excludes:
+          - package-lock.json
+      command: 
+        - node
+        - /mnt/auto/index

@@ -4,12 +4,12 @@ export interface IFunctionConfig {
   description?: string;
   runtime?: 'custom-container';
   customContainerConfig: ICustomContainerConfig;
+  caPort: number;
   code: {
     src: string;
-    excludes: string[];
+    excludes?: string[];
   };
   handler?: string;
-  filename?: string;
   memorySize?: number;
   timeout?: number;
   environmentVariables?: {
