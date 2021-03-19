@@ -1,7 +1,7 @@
 Test:
   Component: web-framework # 项目路径
   Provider: alibaba
-  # Access: wss # 密钥别名
+  Access: wss # 密钥别名
   Extends:
     deploy:
       - Hook: npm install --production
@@ -18,8 +18,9 @@ Test:
       service: test-wss-web
       description: 测试环节
       customContainerConfig:
-        image: registry.cn-hongkong.aliyuncs.com/s-devs-generate/fc-com-test-build-image:v0.1
-        command: '["node", "index"]'
+        # image: registry.cn-hongkong.aliyuncs.com/s-devs-generate/fc-com-test-build-image:v0.1
+        image: registry.cn-hongkong.aliyuncs.com/test-wss/nodejs14:v0.3
+        command: '["node", "/mnt/auto/index"]'
         args: '["--port", "9000"]'
       caPort: 9000
       code:
