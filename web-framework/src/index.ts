@@ -77,7 +77,7 @@ export default class Component {
     this.logger.debug(`Fc config json file path is: ${fcConfigJsonFile}`);
 
     const f = new Framework(properties, fcConfigJsonFile, credentials.AccountID);
-    await f.addConfigToJsonFile(assumeYes, _.cloneDeep(inputs));
+    const fcConfig = await f.addConfigToJsonFile(assumeYes, _.cloneDeep(inputs));
 
     await cpPulumiCodeFiles(pulumiStackDir);
     shell.exec(`cd ${pulumiStackDir} && npm i`, { silent: true });
@@ -101,7 +101,7 @@ export default class Component {
     await NasComponent.init(properties, _.cloneDeep(inputs));
 
     // 返回结果
-    return '';
+    return fcConfig.domain.domainName;
   }
 
   async remove(inputs) {
@@ -137,5 +137,14 @@ export default class Component {
       this.logger.error(`destroy error: ${upRes.stderr}`);
       return;
     }
+  }
+
+  async build(inputs) {
+    const builds = await load('fc-build', 'alibaba');
+    await builds.build(inputs);
+  }
+
+  async cp(inputs) {
+    await NasComponent.cp(inputs.Properties, _.cloneDeep(inputs));
   }
 }

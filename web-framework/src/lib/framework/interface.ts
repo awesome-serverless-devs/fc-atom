@@ -25,6 +25,8 @@ export interface IDomain {
   routeConfigs: {
     serviceName: string;
     functionName: string;
+    qualifier: string;
+    methods: string[];
     path: string;
   }[];
 }

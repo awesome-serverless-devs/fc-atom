@@ -20,5 +20,5 @@ export interface IOSSTOKEN {
 }
 
 export function isFcToken(args: any): args is IFCTOKEN {
-  return args.service !== undefined;
+  return args.type === 'fc' && args.service !== undefined;
 }

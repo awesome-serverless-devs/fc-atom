@@ -255,9 +255,9 @@ export async function generateDockerEnvs({
     FC_INITIALIZATIONIMEOUT: functionProps.initializationTimeout || 3,
     FC_SERVICE_NAME: serviceName,
     // @ts-ignore: 多类型，动态判断
-    FC_SERVICE_LOG_PROJECT: ((serviceProps || {}).LogConfig || {}).project,
+    FC_SERVICE_LOG_PROJECT: ((serviceProps || {}).logConfig || {}).project,
     // @ts-ignore: 多类型，动态判断
-    FC_SERVICE_LOG_STORE: ((serviceProps || {}).LogConfig || {}).logstore,
+    FC_SERVICE_LOG_STORE: ((serviceProps || {}).logConfig || {}).logstore,
   });
 
   return addEnv(envs);

@@ -97,6 +97,5 @@ if (fse.pathExistsSync(configFile)) {
     function: fcFunc.name,
   }, { dependsOn: [fcService, fcFunc], parent: fcFunc });
 
-  // const dm = new alicloud.fc.CustomDomain(domain.domainName, domain, { dependsOn: [fcService, fcFunc, fcTrigger] });
+  const dm = new alicloud.fc.CustomDomain(domain.domainName, domain, { dependsOn: [fcService, fcFunc, fcTrigger] });
 }
-

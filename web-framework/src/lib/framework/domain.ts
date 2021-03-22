@@ -27,6 +27,8 @@ export default class Component {
         {
           serviceName,
           functionName,
+          qualifier: 'LATEST',
+          methods: ['GET', 'POST'],
           path: '/',
         },
       ],

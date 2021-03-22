@@ -1,15 +1,16 @@
 Type: Component
-Name: express
+Name: web-express
 Provider:
   - Alibaba
 Version: 0.0.1
 Description: express组件
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
-  - Alibaba SLS
+  - Alibaba
 Category: 基础云服务
 Commands:
-  logs: 查看日志
+  deploy: 部署能力
+  remove: 删除能力
 Service:
   Others:
     Runtime: Node.JS

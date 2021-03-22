@@ -25,11 +25,11 @@ export default class Component {
     this.autoName = `framework-${accountID}-${this.properties.region}-${this.properties.service.name}`;
   }
 
-  async addConfigToJsonFile(assumeYes: boolean, inputs) {
-    await this.createConfigFile(inputs, assumeYes);
+  async addConfigToJsonFile(assumeYes: boolean, inputs): Promise<any> {
+    return await this.createConfigFile(inputs, assumeYes);
   }
 
-  async createConfigFile(inputs, assumeYes: boolean): Promise<void> {
+  async createConfigFile(inputs, assumeYes: boolean): Promise<any> {
     this.logger.debug(`${this.configFile} not exist, creating...`);
 
     const config: any = {
@@ -59,6 +59,8 @@ export default class Component {
 
     await writeStrToFile(this.configFile, JSON.stringify(config, null, '  '), 'w', 0o777);
     this.logger.debug(`${this.configFile} created done!`);
+
+    return config;
   }
 
   getService() {

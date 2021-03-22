@@ -2,7 +2,7 @@ Type: Component
 Name: domain
 Provider:
   - Alibaba
-Version: 0.0.3
+Version: 0.0.4
 Description: 获取 domain
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
