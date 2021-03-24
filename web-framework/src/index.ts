@@ -109,7 +109,7 @@ export default class Component {
     await NasComponent.init(properties, _.cloneDeep(inputs));
 
     // 返回结果
-    return fcConfig.domain.domainName;
+    return fcConfig.domain?.domainName;
   }
 
   async remove(inputs) {
