@@ -5,7 +5,7 @@ import { CONTEXT, getAutoName, STORENAME } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
-import { writeStrToFile } from '../utils';
+import { writeStrToFile, isBoolean } from '../utils';
 import { IProperties } from '../../interface/inputs';
 
 export default class Component {
@@ -45,7 +45,7 @@ export default class Component {
       config.nas = await this.genNasConfig(inputs, assumeYes);
     }
 
-    if (service.logConfig) {
+    if (service.logConfig && isBoolean(service.logConfig)) {
       config.log = this.genLogConfig();
     }
 
@@ -54,7 +54,11 @@ export default class Component {
     }
 
     if (!domain || domain === 'auto') {
-      config.domain = await Domain.get(inputs);
+      try {
+        config.domain = await Domain.get(inputs);
+      } catch (ex) {
+        this.logger.error(ex);
+      }
     }
 
     await writeStrToFile(this.configFile, JSON.stringify(config, null, '  '), 'w', 0o777);
@@ -66,7 +70,9 @@ export default class Component {
   getService() {
     const service = _.cloneDeep(this.properties.service);
 
-    delete service.logConfig;
+    if (service.logConfig && isBoolean(service.logConfig)) {
+      delete service.logConfig;
+    }
 
     return service;
   }
@@ -110,9 +116,15 @@ export default class Component {
 
   getFunctonConfig() {
     const f = _.clone(this.properties.function);
-    delete f.code;
+
+    f.environmentVariables = _.assign(f.environmentVariables || {}, {
+      START_OPERATION: f.customContainerConfig.command,
+    });
     f.handler = f.handler || 'index.handler';
     f.runtime = 'custom-container';
+    f.customContainerConfig.command = '';
+
+    delete f.code;
 
     return f;
   }

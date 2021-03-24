@@ -31,7 +31,7 @@ function getService(service, autoName: string): buildInterface.IServiceProps {
   if (service.logConfig) {
     config.logConfig = {
       project: service.logConfig?.project || autoName,
-      logStore: service.logConfig?.project || STORENAME,
+      logstore: service.logConfig?.logstore || STORENAME,
     };
   }
 

@@ -58,3 +58,7 @@ export async function promptForConfirmContinue(message: string): Promise<boolean
   }
   return false;
 }
+
+export function isBoolean(arg: any): arg is boolean {
+  return typeof arg === 'boolean';
+}

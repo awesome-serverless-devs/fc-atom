@@ -10,8 +10,8 @@
     ]
   },
   "dependencies": {
-    "@alicloud/fc-builders": "^0.15.1",
-    "@serverless-devs/core": "0.0.29",
+    "@alicloud/fc-builders": "^0.15.2",
+    "@serverless-devs/core": "^0.0.40",
     "dockerode": "^3.2.1",
     "draftlog": "^1.0.12",
     "fs-extra": "^9.1.0",
@@ -42,6 +42,7 @@
     "build:ts": "npx tsc -p tsconfig.json",
     "build:component": "npx webpack --mode=production",
     "publish": "npm run build:component && s platform publish",
+    "package-zip": "cp -rf package*.json publish.yaml ./dist",
     "test": "jest",
     "test:cov": "jest --coverage",
     "lint": "f2elint scan",

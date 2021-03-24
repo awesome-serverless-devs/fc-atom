@@ -7,7 +7,7 @@ export interface IProperties{
   region: string;
   logConfig: {
     project: string;
-    logStore: string;
+    logstore: string;
   };
   topic: string;
   query: string;

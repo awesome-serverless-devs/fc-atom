@@ -17,7 +17,7 @@ if (fse.pathExistsSync(configFile)) {
     domain
   } = JSON.parse(fse.readFileSync(configFile, { encoding: 'utf-8' }));
 
-  let logConfig;
+  let logConfig = service.logConfig;
 
   // 创建 log
   if (log) {

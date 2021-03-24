@@ -47,7 +47,7 @@ export default class Logs {
 
     const { region, logConfig, topic, query } = properties;
     const projectName = logConfig.project;
-    const logStoreName = logConfig.logStore;
+    const logStoreName = logConfig.logstore;
 
     const cmdParameters = comParse.data || {};
 

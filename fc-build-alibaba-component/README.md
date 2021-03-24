@@ -2,9 +2,7 @@
 ````
 $ npm i
 
-$ npm run build:ts
+$ npm run build:ts && npm run package-zip
 
-# copy node_modules/package.json/package-lock.json
-
-
+$ s platform publish 
 ````

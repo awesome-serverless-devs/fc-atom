@@ -15,7 +15,7 @@ export interface IServiceConfig {
 export interface IFunctionConfig {
   name: string;
   service: string;
-  command: string[];
+  command: string;
   code: {
     src: string;
     excludes?: string[];

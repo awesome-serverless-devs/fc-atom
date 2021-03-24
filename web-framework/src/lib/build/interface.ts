@@ -8,7 +8,7 @@ export interface IServiceProps {
   name: string;
   logConfig?: {
     project: string;
-    logStore: string;
+    logstore: string;
     enableRequestMetrics?: boolean;
   };
 }

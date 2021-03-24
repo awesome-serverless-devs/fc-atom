@@ -4,7 +4,7 @@
   "dependencies": {
     "@alicloud/fc2": "^2.2.2",
     "@alicloud/pop-core": "^1.7.10",
-    "@serverless-devs/core": "0.0.40",
+    "@serverless-devs/core": "^0.0.40",
     "deep-equal": "^2.0.5",
     "fs-extra": "^9.1.0",
     "inquirer": "^8.0.0",
@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "npx tsc -w -p tsconfig.json",
     "prebuild": "rimraf dist",
-    "package-zip": "cp -rf src/lib/pulumi-fc/* dist/lib/pulumi-fc && cp -rf package*.json publish.yaml ./dist",
+    "package-zip": "rm -r dist/lib/pulumi-fc && mkdir dist/lib/pulumi-fc && cp -rf src/lib/pulumi-fc/* dist/lib/pulumi-fc && cp -rf package*.json publish.yaml ./dist",
     "build:ts": "npx tsc -p tsconfig.json",
     "build:component": "npx webpack --mode=production",
     "publish": "npm run build:component && s platform publish",

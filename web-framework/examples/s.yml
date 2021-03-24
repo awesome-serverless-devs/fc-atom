@@ -2,26 +2,27 @@ Test:
   Component: /Users/wb447188/Desktop/new-components/fc-atom/web-framework/dist/index.js # 项目路径
   Provider: alibaba
   Access: wss # 密钥别名
-  # Extends:
-  #   deploy:
-  #     - Hook: npm install --production
-  #       Path: ./src
-  #       Pre: true
+  Extends:
+    deploy:
+      - Hook: npm install --production
+        Path: ./src
+        Pre: true
   Properties:
     region: cn-hongkong
     service:
-      name: test-wss-web
+      name: test-wss-web-1
       description: 测试环节
-      logConfig: false
+      # logConfig:
+      #   project: test-abc
+      #   logstore: test
     function:
       name: test
       service: test-wss-web
       runtime: nodejs12
       description: 测试环节
       customContainerConfig:
-        # image: registry.cn-hongkong.aliyuncs.com/s-devs-generate/fc-com-test-build-image:v0.1
-        image: registry.cn-hongkong.aliyuncs.com/test-wss/nodejs14:v0.3
-        command: '["node", "/mnt/auto/index"]'
+        image: registry.cn-hongkong.aliyuncs.com/test-wss/nodejs14:v0.6
+        command: 'node index.js'
         args: '["--port", "9000"]'
       caPort: 9000
       code:

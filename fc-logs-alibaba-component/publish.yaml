@@ -2,7 +2,7 @@ Type: Component
 Name: logs
 Provider:
   - Alibaba
-Version: 0.0.1
+Version: 0.0.2
 Description: logs 查询日志的能力
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
@@ -45,7 +45,7 @@ Properties:
       Description: 项目名称
       Required: true
       Type: String
-    logStore:
+    logstore:
       Description: 仓库名称
       Required: true
       Type: String

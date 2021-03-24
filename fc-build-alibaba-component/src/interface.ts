@@ -16,7 +16,7 @@ export interface IProperties {
 
 interface ILogConfig {
   project: string;
-  logStore: string;
+  logstore: string;
   enableRequestMetrics?: boolean;
 }
 

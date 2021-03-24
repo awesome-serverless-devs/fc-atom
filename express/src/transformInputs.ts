@@ -23,16 +23,13 @@ function genFunctionConfig(
   serviceName: string,
   functionConfig: Interface.IFunctionConfig,
 ): IFunctionConfig {
-  const command: string[] = functionConfig.command;
   functionConfig.caPort = functionConfig.caPort || 9000;
-
-  delete functionConfig.command;
 
   return {
     ...functionConfig,
     customContainerConfig: {
-      image: 'registry.cn-hongkong.aliyuncs.com/test-wss/nodejs14:v0.3', // 公有的启动镜像
-      command: JSON.stringify(command),
+      command: functionConfig.command,
+      image: 'registry.cn-hongkong.aliyuncs.com/test-wss/nodejs14:v0.6', // 公有的启动镜像
       args: `["--port", "${functionConfig.caPort}"]`,
     },
     service: serviceName,
