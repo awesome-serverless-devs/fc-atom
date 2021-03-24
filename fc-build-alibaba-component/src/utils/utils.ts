@@ -62,8 +62,7 @@ export function checkCodeUri(codeUri: string | ICodeUri): string {
     return '';
   }
 
-  // @ts-ignore: 多类型动态判断
-  const src = _.isString(codeUri) ? codeUri : codeUri.Src;
+  const src = _.isString(codeUri) ? codeUri : codeUri.src;
 
   if (!src) {
     Logger.info(CONTEXT, 'No Src configured, skip building.');

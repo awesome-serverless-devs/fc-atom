@@ -102,15 +102,17 @@ export default class Builder {
     const codeSkipBuild = await this.codeSkipBuild({ baseDir, codeUri, runtime });
     this.logger.debug(`[${this.projectName}] Code skip build: ${codeSkipBuild}.`);
 
+    const src = checkCodeUri(codeUri);
+
     if (!codeSkipBuild) {
-      return;
+      return {};
     }
 
     let buildSaveUri: string;
     if (useDocker) {
       buildSaveUri = await this.buildInDocker(buildInput);
     } else {
-      buildSaveUri = await this.buildArtifact(buildInput);
+      buildSaveUri = await this.buildArtifact(buildInput, src);
     }
 
     return { buildSaveUri };
@@ -165,19 +167,17 @@ export default class Builder {
     return funcArtifactDir;
   }
 
-  async buildArtifact({
-    serviceName,
-    functionName,
-    functionProps,
-    verbose = true,
-  }: IBuildInput): Promise<string> {
+  async buildArtifact(
+    { serviceName, functionName, functionProps, verbose = true }: IBuildInput,
+    src,
+  ): Promise<string> {
     process.env.BUILD_EXCLIUDE_FILES = getExcludeFilesEnv();
 
     const baseDir = process.cwd();
     const { runtime } = functionProps;
 
     const stages = ['install', 'build'];
-    const codePath = baseDir;
+    const codePath = path.join(baseDir, src);
     const artifactPath = this.initBuildArtifactDir({ baseDir, serviceName, functionName });
 
     // detect fcfile
@@ -204,12 +204,19 @@ export default class Builder {
 
   async codeSkipBuild({ baseDir, codeUri, runtime }: INeedBuild): Promise<boolean> {
     const src = checkCodeUri(codeUri);
+    this.logger.debug(`src is: ${src}`);
     if (!src) {
       return false;
     }
 
     const absCodeUri = path.resolve(baseDir, src);
     const taskFlows = await fcBuilders.Builder.detectTaskFlow(runtime, absCodeUri);
+    this.logger.debug(
+      `taskFlows isEmpty: ${_.isEmpty(
+        taskFlows,
+      )},only default task flow is: ${this.isOnlyDefaultTaskFlow(taskFlows)}`,
+    );
+    this.logger.debug(JSON.stringify(taskFlows));
     if (_.isEmpty(taskFlows) || this.isOnlyDefaultTaskFlow(taskFlows)) {
       this.logger.info('No need build for this project.');
       return false;

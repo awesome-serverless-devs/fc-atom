@@ -2,11 +2,11 @@ LogsApp:
   Component: /Users/wb447188/Desktop/new-components/fc-atom/express/dist/index.js # 项目路径
   Provider: alibaba
   Access: wss # 密钥别名
-  Extends:
-    deploy:
-      - Hook: npm install --production
-        Path: ./src
-        Pre: true
+  # Extends:
+  #   deploy:
+  #     - Hook: npm install --production
+  #       Path: ./src
+  #       Pre: true
   Properties:
     region: cn-hongkong
     service: 

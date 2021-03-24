@@ -1,4 +1,11 @@
-import { HLogger, ILogger, getCredential, help, commandParse, load } from '@serverless-devs/core';
+import {
+  HLogger,
+  ILogger,
+  getCredential,
+  help,
+  commandParse,
+  loadComponent,
+} from '@serverless-devs/core';
 import fse from 'fs-extra';
 import os from 'os';
 import path from 'path';
@@ -10,6 +17,7 @@ import { cpPulumiCodeFiles, genPulumiInputs } from './lib/pulumi';
 import * as shell from 'shelljs';
 import NasComponent from './lib/nasComponent';
 import Framework from './lib/framework';
+import Build from './lib/build';
 
 const PULUMI_CACHE_DIR: string = path.join(os.homedir(), '.s', 'cache', 'pulumi', 'web-framework');
 
@@ -83,7 +91,7 @@ export default class Component {
     shell.exec(`cd ${pulumiStackDir} && npm i`, { silent: true });
 
     // 部署 fc 资源
-    const pulumiComponentIns = await load('pulumi-alibaba', 'alibaba');
+    const pulumiComponentIns = await loadComponent('alibaba/pulumi-alibaba');
     const pulumiInputs = genPulumiInputs(
       credentials,
       project,
@@ -124,7 +132,7 @@ export default class Component {
       this.logger.debug(ex);
     }
 
-    const pulumiComponentIns = await load('pulumi-alibaba', 'alibaba');
+    const pulumiComponentIns = await loadComponent('alibaba/pulumi-alibaba');
     const pulumiInputs = genPulumiInputs(
       credentials,
       project,
@@ -140,11 +148,22 @@ export default class Component {
   }
 
   async build(inputs) {
-    const builds = await load('fc-build', 'alibaba');
-    await builds.build(inputs);
+    this.handlerInputs(inputs);
+
+    const builds = await loadComponent('alibaba/fc-build');
+
+    await builds.build(Build.transfromInputs(inputs));
   }
 
   async cp(inputs) {
     await NasComponent.cp(inputs.Properties, _.cloneDeep(inputs));
+  }
+
+  async ls(inputs) {
+    await NasComponent.ls(inputs.Properties, _.cloneDeep(inputs));
+  }
+
+  async rm(inputs) {
+    await NasComponent.rm(inputs.Properties, _.cloneDeep(inputs));
   }
 }

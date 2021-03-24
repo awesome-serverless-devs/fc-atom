@@ -26,10 +26,8 @@ export default class Build {
       alias: { dockerfile: 'd' },
     };
     // @ts-ignore
-    const { _: commands = [], Parameters: parameters = {} } = commandParse(
-      { args: inputs.Args },
-      apts,
-    ).data;
+    const { _: commands = [], Parameters: parameters = {} } =
+      commandParse({ args: inputs.Args }, apts).data || {};
 
     const { region, service: serviceProps, function: functionProps } = inputs.Properties;
     const runtime = functionProps.runtime;

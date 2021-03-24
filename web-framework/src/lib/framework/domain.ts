@@ -17,7 +17,7 @@ export default class Component {
       function: functionName,
     };
 
-    const domainComponent = await core.load('domain', 'alibaba');
+    const domainComponent = await core.loadComponent('alibaba/domain');
 
     const domain = await domainComponent.get(inputs);
     return {

@@ -22,3 +22,8 @@ export const HELP = [
 ];
 
 export const CONTEXT = 'WEB-FRAMEWORK';
+
+export const getAutoName = (accountID: string, region: string, serviceName: string) =>
+  `framework-${accountID}-${region}-${serviceName}`;
+
+export const STORENAME = 'logstore';

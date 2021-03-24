@@ -1,7 +1,7 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
 import * as IReturn from './interface';
-import { CONTEXT } from '../../constant';
+import { CONTEXT, getAutoName, STORENAME } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
@@ -22,7 +22,7 @@ export default class Component {
     this.configFile = configFile;
     this.accountID = accountID;
 
-    this.autoName = `framework-${accountID}-${this.properties.region}-${this.properties.service.name}`;
+    this.autoName = getAutoName(accountID, this.properties.region, this.properties.service.name);
   }
 
   async addConfigToJsonFile(assumeYes: boolean, inputs): Promise<any> {
@@ -111,7 +111,7 @@ export default class Component {
   getFunctonConfig() {
     const f = _.clone(this.properties.function);
     delete f.code;
-    f.handler = 'index.handler';
+    f.handler = f.handler || 'index.handler';
     f.runtime = 'custom-container';
 
     return f;
@@ -170,7 +170,7 @@ export default class Component {
         description: 'web-framework-generate',
       },
       store: {
-        name: 'logstore',
+        name: STORENAME,
         enableWebTracking: true,
       },
       storeIndex: {

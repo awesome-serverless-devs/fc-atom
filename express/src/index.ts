@@ -19,4 +19,12 @@ export default class Component {
     const webFramework = await loadComponent('alibaba/web-framework');
     return await webFramework.remove(webFrameworkInputs);
   }
+
+  async build(inputs) {
+    const webFrameworkInputs = transformInputs(_.cloneDeep(inputs));
+    webFrameworkInputs.Properties.function.runtime = 'nodejs12';
+
+    const webFramework = await loadComponent('alibaba/web-framework');
+    return await webFramework.build(webFrameworkInputs);
+  }
 }

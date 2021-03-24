@@ -1,14 +1,44 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
+import path from 'path';
+import fse from 'fs-extra';
 import { CONTEXT } from '../constant';
 import Client from './client';
 import { ICredentials, IProperties } from '../interface/inputs';
 
+interface ISrc {
+  src: string;
+  excludes?: string[];
+}
+
 export default class Component {
   @core.HLogger(CONTEXT) static logger: core.ILogger;
 
+  static async getSrc(code: ISrc, serviceName: string, functionName: string): Promise<string> {
+    const buildCodeUri = path.join(
+      process.cwd(),
+      '.s',
+      'build',
+      'artifacts',
+      serviceName,
+      functionName,
+    );
+
+    if (await fse.pathExists(buildCodeUri)) {
+      return buildCodeUri;
+    }
+
+    return code.src;
+  }
+
   static async init(properties: IProperties, v1Inputs) {
-    const { src } = properties.function.code || {};
+    const src = await this.getSrc(
+      properties.function.code,
+      properties.service.name,
+      properties.function.name,
+    );
+    this.logger.log(`nas component get src is: ${src}`);
+
     const { inputs, nas } = await this.transfromInputs(properties, v1Inputs);
 
     await nas.deploy(inputs);
@@ -72,7 +102,7 @@ export default class Component {
     inputs.Properties = nasProperties;
     inputs.Project.Component = 'fc-nas';
 
-    const nas = await core.load('fc-nas', 'alibaba');
+    const nas = await core.loadComponent('alibaba/fc-nas');
 
     return {
       nas,

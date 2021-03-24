@@ -68,6 +68,7 @@ export default class NasCompoent {
     const mountDir = getMountDir(mountPointDomain, inputs.Properties.nasDir);
     inputs.Properties.nasDir = nasUriHandler(inputs.Properties.nasDir);
 
+    this.logger.debug(`Whether to open the service configuration: ${!isNasServerStale}`);
     if (!isNasServerStale) {
       inputs.Properties.mountDir = mountDir;
       const fc = new FcResources(properties.regionId, credentials);

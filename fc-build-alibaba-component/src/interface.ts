@@ -8,6 +8,12 @@ export interface IBuildInput {
   credentials?: ICredentials;
 }
 
+export interface IProperties {
+  region: string;
+  service: IServiceProps;
+  function: IFunctionProps;
+}
+
 interface ILogConfig {
   project: string;
   logStore: string;
@@ -16,7 +22,7 @@ interface ILogConfig {
 
 export interface IServiceProps {
   name: string;
-  logConfig?: string | ILogConfig;
+  logConfig?: ILogConfig;
 }
 
 export interface IFunctionProps {
