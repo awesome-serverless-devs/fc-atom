@@ -41,8 +41,8 @@ if (fse.pathExistsSync(configFile)) {
 
   // 创建 vpc
   const { network, switch: vswitch, securityGroup } = vpc;
-  const v = new alicloud.vpc.Network(network.name, network);
-  const vs = new alicloud.vpc.Switch(vswitch.name, {
+  const v = new alicloud.vpc.Network(network.vpc_name, network);
+  const vs = new alicloud.vpc.Switch(vswitch.vswitch_name, {
     ...vswitch,
     vpcId: v.id
   }, { dependsOn: [v], parent: v });

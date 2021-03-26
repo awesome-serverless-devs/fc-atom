@@ -576,7 +576,9 @@ export default class Cp {
             this.logger.error(error);
             return;
           }
-          this.logger.log(`${error.code || ''} ${error.message.toLowerCase()}`);
+
+          this.logger.debug(`${error.code || ''} ${error.message.toLowerCase()}`);
+
           // 当解压文件数大于 1 ，默认为解压文件数过多导致 unzip 指令超出指令长度限制导致的解压失败
           // 会将解压文件列表折半拆分后进行重试
           if (unzipFiles.length > 1) {

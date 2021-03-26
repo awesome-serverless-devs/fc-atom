@@ -138,6 +138,7 @@ export default class Resources {
         service,
         name: funName,
         handler: 'index.handler',
+        timeout: 600,
         filename: isEnsureNasDirExist ? ENSURENASDIREXISTFILENAME : await getNasServerFile(),
         runtime: 'nodejs8',
       },

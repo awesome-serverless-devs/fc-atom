@@ -122,6 +122,7 @@ export default class Component {
     });
     f.handler = f.handler || 'index.handler';
     f.runtime = 'custom-container';
+    f.timeout = f.timeout || 30;
     f.customContainerConfig.command = '';
 
     delete f.code;
@@ -140,13 +141,14 @@ export default class Component {
     return {
       network: {
         cidrBlock: '10.0.0.0/8',
-        name: this.autoName,
+        vpc_name: this.autoName,
       },
       switch: {
-        name: this.autoName,
+        vswitch_name: this.autoName,
         cidrBlock: '10.0.0.0/16',
         vpcId: '',
         availabilityZone: await ZoneId.get(this.properties.region, inputs.Credentials),
+        // zone_id: await ZoneId.get(this.properties.region, inputs.Credentials),
       },
       securityGroup: {
         description: 'web-framework-generate',
