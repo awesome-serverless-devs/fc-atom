@@ -1,0 +1,25 @@
+LogsApp:
+  Component: /Users/wb447188/Desktop/django/dist/index.js
+  # Component: web-django
+  Provider: alibaba
+  Access: wss # 密钥别名
+  Properties:
+    region: cn-shenzhen
+    service: 
+      name: django
+      description: django示例
+      logConfig: 
+        project: aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1
+        logstore: function-log
+    function:
+      name: test
+      description: django示例
+      memorySize: 1024
+      code:
+        src: .
+        excludes:
+          - s.yml
+          - README.md
+      command: 'python3 manage.py runserver 0.0.0.0:9000'
+      environmentVariables:
+        PYTHONPATH: /mnt/auto/tmp
