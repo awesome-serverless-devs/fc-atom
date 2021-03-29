@@ -18,6 +18,7 @@ export function sleep(ms: number) {
 
 export function getExcludeFilesEnv(): string {
   return [
+    // path.join('.fun'),
     path.join('.s', 'build'),
     path.join('.s', 'nas'),
     path.join('.s', 'tmp'),

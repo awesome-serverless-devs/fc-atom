@@ -155,6 +155,13 @@ export default class Component {
     await builds.build(Build.transfromInputs(inputs));
   }
 
+  async log(inputs) {
+    const outputInputs = await this.handlerInputs(inputs);
+    if (!outputInputs.properties.service.logConfig) {
+      throw new Error('The service is not configured to logConfig.');
+    }
+  }
+
   async cp(inputs) {
     await NasComponent.cp(inputs.Properties, _.cloneDeep(inputs));
   }
