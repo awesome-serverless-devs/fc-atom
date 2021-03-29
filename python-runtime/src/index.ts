@@ -28,6 +28,13 @@ export default class Component {
     return await webFramework.build(webFrameworkInputs);
   }
 
+  async metrics(inputs) {
+    const webFrameworkInputs = transformInputs(_.cloneDeep(inputs));
+
+    const webFramework = await loadComponent('alibaba/web-framework');
+    return await webFramework.metrics(webFrameworkInputs);
+  }
+
   async ls(inputs) {
     const webFrameworkInputs = transformInputs(_.cloneDeep(inputs));
     webFrameworkInputs.Properties.function.runtime = 'python3';

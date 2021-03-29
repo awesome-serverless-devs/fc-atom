@@ -1,6 +1,5 @@
 LogsApp:
-  Component: /Users/wb447188/Desktop/django/dist/index.js
-  # Component: web-django
+  Component: /Users/wb447188/Desktop/new-components/fc-atom/python-runtime/dist/index.js
   Provider: alibaba
   Access: wss # 密钥别名
   Properties:
@@ -8,9 +7,7 @@ LogsApp:
     service: 
       name: django
       description: django示例
-      logConfig: 
-        project: aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1
-        logstore: function-log
+      logConfig: true
     function:
       name: test
       description: django示例

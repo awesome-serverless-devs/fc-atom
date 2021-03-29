@@ -24,7 +24,7 @@
     "prebuild": "rimraf dist",
     "build:ts": "npx tsc -p tsconfig.json",
     "build:component": "npx webpack --mode=production",
-    "publish": "npm run build:component && s platform publish",
+    "publish": "npm run build:ts && npm run package-zip && s platform publish",
     "package-zip": "cp -rf package*.json publish.yaml ./dist",
     "test": "jest",
     "test:cov": "jest --coverage",
