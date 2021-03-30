@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import Client from './client';
 import { CONTEXT } from '../constant';
-import { sleep, replaceLineBreak } from './utils';
+import { sleep } from './utils';
 
 interface IGetLogs {
   projectName: string;
@@ -18,33 +18,51 @@ export default class SeachLogs extends Client {
   slsClient = this.buildSlsClient();
   @HLogger(CONTEXT) logger: ILogger;
 
-  printLogs(historyLogs: object) {
-    _.values(historyLogs).forEach((data: any) => {
-      this.logger.info(`\n${data.message}`);
-    });
+  printLogs(historyLogs: any[]) {
+    let requestId: string = '';
+
+    for (const item of historyLogs) {
+      if (requestId !== item.requestId) {
+        this.logger.log('\n');
+        requestId = item.requestId;
+      }
+      this.logger.log(item.message);
+    }
   }
 
   /**
    * 过滤日志信息
    */
-  private filterByKeywords(logsList = {}, { requestId, keyword, queryErrorLog = false }) {
+  private filterByKeywords(logsList = [], { requestId = '', keyword = '', queryErrorLog }) {
     let logsClone = _.cloneDeep(logsList);
+
     if (requestId) {
-      logsClone = _.pick(logsClone, [`${requestId}\r`, requestId]);
+      logsClone = _.filter(logsClone, (value) => value.requestId === requestId);
     }
 
     if (keyword) {
-      logsClone = _.pickBy(logsClone, (value: any) => {
-        const replaceLog = value.message.replace(new RegExp(/(\r)/g), '\n');
-        return replaceLog.indexOf(keyword) !== -1;
+      const requestIds: string[] = [];
+      _.forEach(logsClone, (value) => {
+        const curRequestId = value.requestId;
+        if (value.message.includes(keyword) && curRequestId && !requestIds.includes(curRequestId)) {
+          requestIds.push(curRequestId);
+        }
       });
+      logsClone = _.filter(logsClone, (value) => requestIds.includes(value.requestId));
     }
 
     if (queryErrorLog) {
-      logsClone = _.pickBy(logsClone, (value: any) => {
-        const replaceLog = value.message.replace(new RegExp(/(\r)/g), '\n');
-        return replaceLog.indexOf(' [ERROR] ') !== -1 || replaceLog.indexOf('Error: ') !== -1;
+      const requestIds: string[] = [];
+      _.forEach(logsClone, (value) => {
+        const curRequestId = value.requestId;
+        const curMessage = value.message;
+        const isError = curMessage.includes(' [ERROR] ') || curMessage.includes('Error: ');
+
+        if (isError && curRequestId && !requestIds.includes(curRequestId)) {
+          requestIds.push(curRequestId);
+        }
       });
+      logsClone = _.filter(logsClone, (value) => requestIds.includes(value.requestId));
     }
 
     return logsClone;
@@ -53,12 +71,13 @@ export default class SeachLogs extends Client {
   /**
    * 获取日志
    */
-  async getLogs(requestParams: IGetLogs) {
+  async getLogs(requestParams: IGetLogs, tabReplaceStr = '') {
+    this.logger.debug(`get logs params: ${JSON.stringify(requestParams)}`)
     let count;
     let xLogCount;
     let xLogProgress = 'Complete';
 
-    let result;
+    let result = [];
 
     do {
       const response: any = await new Promise((resolve, reject) => {
@@ -81,7 +100,7 @@ export default class SeachLogs extends Client {
       xLogProgress = response.headers['x-log-progress'];
 
       let requestId;
-      result = _.values(body).reduce((acc, cur) => {
+      result = _.concat(result, _.values(body).map(cur => {
         const currentMessage = cur.message;
         const found = currentMessage.match('(\\w{8}(-\\w{4}){3}-\\w{12}?)');
 
@@ -94,18 +113,16 @@ export default class SeachLogs extends Client {
         }
 
         if (requestId) {
-          if (!_.has(acc, requestId)) {
-            acc[requestId] = {
-              timestamp: cur.__time__,
-              time: moment.unix(cur.__time__).format('YYYY-MM-DD H:mm:ss'),
-              message: '',
-            };
-          }
-          acc[requestId].message = acc[requestId].message + currentMessage;
+          requestId = _.trim(requestId);
         }
 
-        return acc;
-      }, {});
+        return {
+          requestId,
+          timestamp: cur.__time__,
+          time: moment.unix(cur.__time__).format('YYYY-MM-DD H:mm:ss'),
+          message: currentMessage.replace(new RegExp(/(\r)/g), tabReplaceStr)
+        };
+      }, {}));
     } while (xLogCount !== count && xLogProgress !== 'Complete');
 
     return result;
@@ -143,7 +160,7 @@ export default class SeachLogs extends Client {
       query,
     });
 
-    return this.filterByKeywords(replaceLineBreak(logsList), { keyword, requestId, queryErrorLog });
+    return this.filterByKeywords(logsList, { keyword, requestId, queryErrorLog });
   }
 
   /**
@@ -158,14 +175,18 @@ export default class SeachLogs extends Client {
     let timeEnd;
     let times = 1800;
 
+    /**
+     * 日志接口最小区间10s，查询间隔为 1s
+     * 实现：将 10s 的数据全都请求回来，然后记录输出的时间戳，同一时间戳的输出，输出过的时间戳则过滤掉
+     */
     const consumedTimeStamps = [];
-
     while (times > 0) {
       await sleep(1000);
       times = times - 1;
 
       timeStart = moment().subtract(10, 'seconds').unix();
       timeEnd = moment().unix();
+      this.logger.debug(`realtime: ${times}, start: ${timeStart}, end: ${timeEnd}`);
 
       const pulledlogs = await this.getLogs({
         projectName,
@@ -180,23 +201,20 @@ export default class SeachLogs extends Client {
         continue;
       }
 
-      const notConsumedLogs = _.pickBy(pulledlogs, (data) => {
-        return !_.includes(consumedTimeStamps, data.timestamp);
+      let showTimestamp: string = '';
+
+      const notConsumedLogs = _.filter(pulledlogs, (data) => {
+        const { timestamp } = data;
+        if (consumedTimeStamps.includes(timestamp)) {
+          return showTimestamp === timestamp;
+        }
+
+        showTimestamp = data.timestamp;
+        consumedTimeStamps.push(data.timestamp);
+        return true;
       });
 
-      if (_.isEmpty(notConsumedLogs)) {
-        continue;
-      }
-
-      const replaceLogs = replaceLineBreak(notConsumedLogs);
-
-      this.printLogs(replaceLogs);
-
-      const pulledTimeStamps = _.values(replaceLogs).map((data: any) => {
-        return data.timestamp;
-      });
-
-      consumedTimeStamps.push(...pulledTimeStamps);
+      this.printLogs(notConsumedLogs);
     }
   }
 }

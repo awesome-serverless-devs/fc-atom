@@ -35,7 +35,7 @@ export default class Logs {
     const comParse: ICommandParse = commandParse({ args: inputs.Args }, apts);
     this.logger.debug(`commandParse response is: ${JSON.stringify(comParse)}`);
 
-    if (comParse.data.help) {
+    if (comParse.data?.help) {
       help(HELP);
       return;
     }

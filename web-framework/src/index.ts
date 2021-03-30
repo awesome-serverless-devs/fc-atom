@@ -17,7 +17,8 @@ import { cpPulumiCodeFiles, genPulumiInputs } from './lib/pulumi';
 import * as shell from 'shelljs';
 import NasComponent from './lib/nasComponent';
 import Framework from './lib/framework';
-import ToMetrics from './lib/tarnsform/toMetrics'
+import ToMetrics from './lib/tarnsform/toMetrics';
+import ToLogs from './lib/tarnsform/toLogs';
 import Build from './lib/build';
 
 const PULUMI_CACHE_DIR: string = path.join(os.homedir(), '.s', 'cache', 'pulumi', 'web-framework');
@@ -156,11 +157,15 @@ export default class Component {
     await builds.build(Build.transfromInputs(inputs));
   }
 
-  async log(inputs) {
+  async logs(inputs) {
     const outputInputs = await this.handlerInputs(inputs);
     if (!outputInputs.properties.service.logConfig) {
       throw new Error('The service is not configured to logConfig.');
     }
+    const inputsLogs = await ToLogs.tarnsform(_.cloneDeep(inputs));
+    const logs = await loadComponent('alibaba/logs');
+    
+    await logs.logs(inputsLogs);
   }
 
   async metrics(inputs) {

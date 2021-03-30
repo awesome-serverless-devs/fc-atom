@@ -11,7 +11,7 @@ export default class Component {
     const functionName = functionConfig.name;
 
     inputs.Properties = {
-      region,
+      regionId: region,
       serviceName,
       functionName
     };
