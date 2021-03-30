@@ -7,7 +7,7 @@ LogsApp:
     service: 
       name: django
       description: django示例
-      logConfig: true
+      logConfig: auto
     function:
       name: test
       description: django示例

@@ -5,7 +5,7 @@ import { CONTEXT, getAutoName, STORENAME } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
-import { writeStrToFile, isBoolean } from '../utils';
+import { writeStrToFile, isAuto } from '../utils';
 import { IProperties } from '../../interface/inputs';
 
 export default class Component {
@@ -45,7 +45,7 @@ export default class Component {
       config.nas = await this.genNasConfig(inputs, assumeYes);
     }
 
-    if (service.logConfig && isBoolean(service.logConfig)) {
+    if (isAuto(service.logConfig)) {
       config.log = this.genLogConfig();
     }
 
@@ -70,7 +70,7 @@ export default class Component {
   getService() {
     const service = _.cloneDeep(this.properties.service);
 
-    if (service.logConfig && isBoolean(service.logConfig)) {
+    if (isAuto(service.logConfig)) {
       delete service.logConfig;
     }
 

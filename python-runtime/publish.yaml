@@ -1,5 +1,5 @@
 Type: Component
-Name: web-django
+Name: python-runtime
 Provider:
   - Alibaba
 Version: 0.0.2

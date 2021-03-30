@@ -9,7 +9,10 @@ export interface IProperties {
 export interface IServiceConfig {
   name: string;
   description?: string;
-  logConfig?: boolean;
+  logConfig?: 'auto' | 'Auto' | {
+    project: string;
+    logstore: string;
+  };
 }
 
 export interface IFunctionConfig {

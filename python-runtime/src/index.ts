@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { CONTEXT } from './constant';
 import transformInputs from './transformInputs';
 
-// const WEB_FRAMEWORK = '/Users/wb447188/Desktop/new-components/fc-atom/web-framework/dist/index.js';
 const WEB_FRAMEWORK = 'alibaba/web-framework';
 
 export default class Component {

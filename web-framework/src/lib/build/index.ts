@@ -1,6 +1,7 @@
 import * as buildInterface from './interface';
 import { IProperties } from '../../interface/inputs';
 import { getAutoName, STORENAME } from '../../constant';
+import { isAuto } from '../utils'
 
 function transfromInputs(inputs) {
   const { region, service, function: functionConfig }: IProperties = inputs.Properties;
@@ -29,10 +30,21 @@ function getService(service, autoName: string): buildInterface.IServiceProps {
   };
 
   if (service.logConfig) {
-    config.logConfig = {
-      project: service.logConfig?.project || autoName,
-      logstore: service.logConfig?.logstore || STORENAME,
-    };
+    if (isAuto(service.logConfig)) {
+      config.logConfig = {
+        project: autoName,
+        logstore: STORENAME,
+      }
+    } else {
+      const { project, logstore } = service.logConfig || {};
+      if (project && logstore) {
+        config.logConfig = {
+          project,logstore
+        }
+      } else {
+        throw new Error('service/logConfig configuration error');
+      }
+    }
   }
 
   return config;

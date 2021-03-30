@@ -1,7 +1,8 @@
 import * as Interface from '../../interface/inputs';
+import _ from 'lodash'
 import { ILogConfig } from '../../interface/service';
 import { getAutoName, STORENAME } from '../../constant';
-import { isBoolean } from '../utils'
+import { isAuto } from '../utils'
 
 export default class Component {
   static tarnsform(inputs) {
@@ -20,8 +21,13 @@ export default class Component {
       logstore: STORENAME
     };
 
-    if (!isBoolean(service.logConfig)) {
-      Object.assign(logConfig, service.logConfig);
+    if (!isAuto(service.logConfig)) {
+      const { project, logstore } = service.logConfig || {};
+      if (project && logstore) {
+        Object.assign(logConfig, service.logConfig);
+      } else {
+        throw new Error('service/logConfig configuration error');
+      }
     }
 
     inputs.Properties = {

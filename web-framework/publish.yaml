@@ -2,7 +2,7 @@ Type: Component
 Name: web-framework
 Provider:
   - Alibaba
-Version: 0.0.16
+Version: 0.0.17
 Description: 上层组件部署和删除的能力
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
@@ -56,7 +56,18 @@ Properties:
       Required: false
       Description: '日志'
       Type:
-        - Boolean
+        - Enum
+          - auto
+          - Auto
+        - Struct:
+          logproject: 
+            Required: true
+            Type: 
+              - String
+          logstore: 
+            Required: true
+            Type: 
+              - String
   function:
     name:
       Required: true

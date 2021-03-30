@@ -3,7 +3,7 @@ export interface IServiceConfig {
   role: string;
   description?: string;
   internetAccess?: boolean;
-  logConfig?: boolean | ILogConfig;
+  logConfig?: 'auto' | 'Auto' | ILogConfig;
   vpcConfig?: IVpcConfig;
   nasConfig?: INasConfig;
 }
