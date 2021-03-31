@@ -243,6 +243,7 @@ export async function generateDockerEnvs({
   Object.assign(envs, {
     local: true,
     BUILD_EXCLIUDE_FILES: getExcludeFilesEnv(),
+    TOOL_CACHE_PATH: '.s',
     FC_ACCESS_KEY_ID: credentials.AccessKeyID,
     FC_ACCESS_KEY_SECRET: credentials.AccessKeySecret,
     FC_ACCOUND_ID: credentials.AccountID,

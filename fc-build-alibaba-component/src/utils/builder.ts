@@ -172,6 +172,7 @@ export default class Builder {
     src,
   ): Promise<string> {
     process.env.BUILD_EXCLIUDE_FILES = getExcludeFilesEnv();
+    process.env.TOOL_CACHE_PATH = '.s';
 
     const baseDir = process.cwd();
     const { runtime } = functionProps;
