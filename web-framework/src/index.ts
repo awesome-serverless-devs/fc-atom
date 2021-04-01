@@ -87,13 +87,14 @@ export default class Component {
     this.logger.debug(`Fc config json file path is: ${fcConfigJsonFile}`);
 
     const f = new Framework(properties, fcConfigJsonFile, credentials.AccountID);
-    const fcConfig = await f.addConfigToJsonFile(assumeYes, _.cloneDeep(inputs));
+    const fcConfig = await f.createConfigFile(_.cloneDeep(inputs), assumeYes);
 
     await cpPulumiCodeFiles(pulumiStackDir);
     shell.exec(`cd ${pulumiStackDir} && npm i`, { silent: true });
 
     // 部署 fc 资源
     const pulumiComponentIns = await loadComponent('alibaba/pulumi-alibaba');
+
     const pulumiInputs = genPulumiInputs(
       credentials,
       project,
@@ -111,7 +112,7 @@ export default class Component {
     await NasComponent.init(properties, _.cloneDeep(inputs));
 
     // 返回结果
-    return fcConfig.domain?.domainName;
+    return fcConfig.customDomains?.map(({ domainName }) => domainName);
   }
 
   async remove(inputs) {
@@ -153,8 +154,9 @@ export default class Component {
     this.handlerInputs(inputs);
 
     const builds = await loadComponent('alibaba/fc-build');
+    const cloneInputs = Build.transfromInputs(_.cloneDeep(inputs));
 
-    await builds.build(Build.transfromInputs(inputs));
+    await builds.build(cloneInputs);
   }
 
   async logs(inputs) {

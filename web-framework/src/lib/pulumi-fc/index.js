@@ -14,7 +14,7 @@ if (fse.pathExistsSync(configFile)) {
     trigger,
     role,
     rolePolicyAttachments,
-    domain
+    customDomains
   } = JSON.parse(fse.readFileSync(configFile, { encoding: 'utf-8' }));
 
   let logConfig = service.logConfig;
@@ -97,7 +97,12 @@ if (fse.pathExistsSync(configFile)) {
     function: fcFunc.name,
   }, { dependsOn: [fcService, fcFunc], parent: fcFunc });
 
-  if (domain) {
-    const dm = new alicloud.fc.CustomDomain(domain.domainName, domain, { dependsOn: [fcService, fcFunc, fcTrigger] });
+  if (customDomains) {
+    let domainNames = [];
+    customDomains.forEach(customDomain => {
+      new alicloud.fc.CustomDomain(customDomain.domainName, customDomain, { dependsOn: [fcService, fcFunc, fcTrigger] });
+      domainNames.push(customDomain.domainName);
+    })
+    return domainNames;
   }
 }

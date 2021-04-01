@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import inquirer from 'inquirer';
-import { CONTEXT } from '../constant';
+import { CONTEXT, STORENAME } from '../constant';
+import { ILogConfig } from '../interface/service';
 import { Logger } from '@serverless-devs/core';
 
 export function genStackId(accountId: string, region: string, serviceName: string): string {
@@ -61,4 +62,23 @@ export async function promptForConfirmContinue(message: string): Promise<boolean
 
 export function isAuto(arg: any): arg is 'auto' | 'Auto' {
   return arg === 'auto' || arg === 'Auto';
+}
+
+export function isDebug() {
+  return process.env?.temp_params?.includes('--debug');
+}
+
+export function getLogConfig(logConfig: 'auto' | 'Auto' | ILogConfig, autoName: string) {
+  if (isAuto(logConfig)) {
+    return {
+      project: autoName,
+      logstore: STORENAME
+    }
+  }
+
+  if (logConfig?.project && logConfig?.logstore) {
+    return logConfig;
+  }
+
+  throw new Error('service/logConfig configuration error');
 }

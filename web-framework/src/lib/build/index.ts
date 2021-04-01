@@ -1,14 +1,10 @@
 import * as buildInterface from './interface';
 import { IProperties } from '../../interface/inputs';
-import { getAutoName, STORENAME } from '../../constant';
-import { isAuto } from '../utils'
+import { getAutoName } from '../../constant';
+import { getLogConfig } from '../utils'
 
 function transfromInputs(inputs) {
   const { region, service, function: functionConfig }: IProperties = inputs.Properties;
-
-  if (!functionConfig.runtime) {
-    throw new Error('Build not fount runtime.');
-  }
 
   const accountID = inputs.Credentials.AccountID;
   const autoName = getAutoName(accountID, region, service.name);
@@ -16,7 +12,7 @@ function transfromInputs(inputs) {
   const config: buildInterface.IProperties = {
     region,
     service: getService(service, autoName),
-    function: getFunction(functionConfig),
+    function: getFunction(functionConfig, service.name),
   };
 
   inputs.Properties = config;
@@ -30,30 +26,16 @@ function getService(service, autoName: string): buildInterface.IServiceProps {
   };
 
   if (service.logConfig) {
-    if (isAuto(service.logConfig)) {
-      config.logConfig = {
-        project: autoName,
-        logstore: STORENAME,
-      }
-    } else {
-      const { project, logstore } = service.logConfig || {};
-      if (project && logstore) {
-        config.logConfig = {
-          project,logstore
-        }
-      } else {
-        throw new Error('service/logConfig configuration error');
-      }
-    }
+    config.logConfig = getLogConfig(service.logConfig, autoName);
   }
 
   return config;
 }
 
-function getFunction(functionConfig): buildInterface.IFunctionProps {
+function getFunction(functionConfig, serviceName: string): buildInterface.IFunctionProps {
   const config: buildInterface.IFunctionProps = {
-    name: functionConfig.name,
-    runtime: functionConfig.runtime,
+    name: functionConfig.name || serviceName,
+    runtime: 'custom', // functionConfig.framework
     codeUri: functionConfig.code,
     handler: functionConfig.handler || 'index.handler',
     initializationTimeout: functionConfig.handler || 3,

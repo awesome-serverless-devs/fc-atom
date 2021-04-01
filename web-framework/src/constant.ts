@@ -27,3 +27,5 @@ export const getAutoName = (accountID: string, region: string, serviceName: stri
   `framework-${accountID}-${region}-${serviceName}`;
 
 export const STORENAME = 'logstore';
+
+export const HTTP_CONFIG = "{\"authType\":\"anonymous\",\"methods\":[\"GET\",\"POST\",\"PUT\"]}";

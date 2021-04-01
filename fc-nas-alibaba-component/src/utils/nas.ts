@@ -262,7 +262,7 @@ export default class Nas {
     do {
       count++;
 
-      await sleep(800);
+      await sleep(2000);
 
       const rs = await this.nasClient.request(
         'DescribeMountTargets',
@@ -285,7 +285,7 @@ export default class Nas {
 
     if (status !== 'Active') {
       throw new Error(
-        `Timeout while waiting for MountPoint ${mountTargetDomain} status to be 'Active'`,
+        `Timeout while waiting for MountPoint ${mountTargetDomain} status to be 'Active',please try again.`,
       );
     }
   }

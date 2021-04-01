@@ -1,7 +1,7 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
 import * as IReturn from './interface';
-import { CONTEXT, getAutoName, STORENAME } from '../../constant';
+import { CONTEXT, getAutoName, STORENAME, HTTP_CONFIG } from '../../constant';
 import Domain from './domain';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
@@ -16,17 +16,20 @@ export default class Component {
   readonly domain: string;
   readonly accountID: string;
   readonly autoName: string;
+  readonly serviceName: string;
+  readonly functionName: string;
 
   constructor(properties: IProperties, configFile: string, accountID: string) {
+    const serviceName = properties.service.name;
+    const functionName = properties.function.name || serviceName;
+
     this.properties = properties;
     this.configFile = configFile;
     this.accountID = accountID;
+    this.serviceName = serviceName;
+    this.functionName = functionName;
 
-    this.autoName = getAutoName(accountID, this.properties.region, this.properties.service.name);
-  }
-
-  async addConfigToJsonFile(assumeYes: boolean, inputs): Promise<any> {
-    return await this.createConfigFile(inputs, assumeYes);
+    this.autoName = getAutoName(accountID, properties.region, serviceName);
   }
 
   async createConfigFile(inputs, assumeYes: boolean): Promise<any> {
@@ -38,7 +41,7 @@ export default class Component {
       trigger: this.getTrigger(),
     };
 
-    const { service, domain } = this.properties;
+    const { service } = this.properties;
 
     if (!service.nasConfig) {
       config.vpc = await this.genVpcConfig(inputs);
@@ -53,12 +56,10 @@ export default class Component {
       Object.assign(config, this.genRole(service.logConfig));
     }
 
-    if (!domain || domain === 'auto') {
-      try {
-        config.domain = await Domain.get(inputs);
-      } catch (ex) {
-        this.logger.error(ex);
-      }
+    try {
+      config.customDomains = await Domain.get(inputs);
+    } catch (ex) {
+      this.logger.error(ex);
     }
 
     await writeStrToFile(this.configFile, JSON.stringify(config, null, '  '), 'w', 0o777);
@@ -77,12 +78,66 @@ export default class Component {
     return service;
   }
 
+  getFunctonConfig() {
+    const functionConfig = _.clone(this.properties.function);
+
+    const {
+      caPort,
+      handler,
+      timeout
+    } = functionConfig;
+
+    functionConfig.service = this.serviceName;
+    functionConfig.name = this.functionName;
+    functionConfig.caPort = caPort || 9000;
+    functionConfig.timeout = timeout || 30;
+    functionConfig.handler = handler || 'index.handler';
+    functionConfig.runtime = 'custom-container';
+
+    delete functionConfig.code;
+    return functionConfig;
+  }
+
+  getTrigger() {
+    const triggerConfig = this.properties.trigger;
+
+    const {
+      serviceName,
+      functionName
+    } = this;
+
+    if (!triggerConfig) {
+      return {
+        name: serviceName,
+        function: functionName,
+        service: serviceName,
+        type: 'http',
+        config: HTTP_CONFIG
+      }
+    }
+
+    const { name, type, config } = triggerConfig;
+    
+    return {
+      type,
+      name: name || serviceName,
+      function: functionName,
+      service: serviceName,
+      config: JSON.stringify(config),
+    };
+  }
+
   genRole(logConfig): any {
     const rolePolicyAttachments = [
       {
         roleName: this.autoName,
         policyType: 'System',
         policyName: 'AliyunECSNetworkInterfaceManagementAccess',
+      },
+      {
+        roleName: this.autoName,
+        policyType: 'System',
+        policyName: 'AliyunContainerRegistryReadOnlyAccess',
       },
     ];
 
@@ -111,29 +166,6 @@ export default class Component {
         }),
       },
       rolePolicyAttachments,
-    };
-  }
-
-  getFunctonConfig() {
-    const f = _.clone(this.properties.function);
-
-    f.environmentVariables = _.assign(f.environmentVariables || {}, {
-      START_OPERATION: f.customContainerConfig.command,
-    });
-    f.handler = f.handler || 'index.handler';
-    f.runtime = 'custom-container';
-    f.timeout = f.timeout || 30;
-    f.customContainerConfig.command = '';
-
-    delete f.code;
-
-    return f;
-  }
-
-  getTrigger() {
-    return {
-      ...this.properties.trigger,
-      config: JSON.stringify(this.properties.trigger.config),
     };
   }
 

@@ -32,10 +32,12 @@ export default class Component {
   }
 
   static async init(properties: IProperties, v1Inputs) {
+    const serviceName = properties.service.name;
+    const functionName = properties.function.name || serviceName;
     const src = await this.getSrc(
       properties.function.code,
-      properties.service.name,
-      properties.function.name,
+      serviceName,
+      functionName,
     );
     this.logger.log(`nas component get src is: ${src}`);
 
