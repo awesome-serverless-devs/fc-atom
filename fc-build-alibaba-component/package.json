@@ -2,7 +2,7 @@
   "name": "heimanba",
   "version": "0.0.1",
   "fc-docker": {
-    "version": "1.9.16",
+    "version": "1.9.17",
     "registry_default": "registry.cn-beijing.aliyuncs.com",
     "registry_mirrors": [
       "registry.cn-beijing.aliyuncs.com",
@@ -10,7 +10,7 @@
     ]
   },
   "dependencies": {
-    "@alicloud/fc-builders": "^0.15.2",
+    "@alicloud/fc-builders": "^0.15.3",
     "@serverless-devs/core": "^0.0.40",
     "dockerode": "^3.2.1",
     "draftlog": "^1.0.12",

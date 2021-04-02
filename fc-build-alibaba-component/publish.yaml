@@ -2,7 +2,7 @@ Type: Component
 Name: fc-build
 Provider:
   - Alibaba
-Version: 0.0.5
+Version: 0.0.6
 Description: fc-build 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情
