@@ -17,6 +17,18 @@ if (fse.pathExistsSync(configFile)) {
     customDomains
   } = JSON.parse(fse.readFileSync(configFile, { encoding: 'utf-8' }));
 
+  const dependsOnRam = [];
+  const ram = new alicloud.ram.Role(role.name, role);
+  dependsOnRam.push(ram);
+  for (const rolePolicyAttachment of rolePolicyAttachments) {
+    const policy = new alicloud.ram.RolePolicyAttachment(rolePolicyAttachment.policyName, {
+      ...rolePolicyAttachment,
+      roleName: ram.name
+    }, { dependsOn: [ram], parent: ram });
+
+    dependsOnRam.push(policy);
+  }
+
   let logConfig = service.logConfig;
 
   // 创建 log
@@ -26,12 +38,12 @@ if (fse.pathExistsSync(configFile)) {
     const s = new alicloud.log.Store(store.name, {
       ...store,
       project: p.name,
-    }, { dependsOn: [p], parent: p });
+    }, { dependsOn: [p, ...dependsOnRam], parent: p });
     new alicloud.log.StoreIndex(store.name, {
       ...storeIndex,
       project: p.name,
       logstore: s.name
-    }, { dependsOn: [p, s], parent: s });
+    }, { dependsOn: [p, s, ...dependsOnRam], parent: s });
     
     logConfig = {
       project: p.name,
@@ -45,11 +57,11 @@ if (fse.pathExistsSync(configFile)) {
   const vs = new alicloud.vpc.Switch(vswitch.vswitch_name, {
     ...vswitch,
     vpcId: v.id
-  }, { dependsOn: [v], parent: v });
+  }, { dependsOn: [v, ...dependsOnRam], parent: v });
   const sg = new alicloud.ecs.SecurityGroup(securityGroup.name, {
     ...securityGroup,
     vpcId: v.id
-  }, { dependsOn: [v], parent: v });
+  }, { dependsOn: [v, ...dependsOnRam], parent: v });
 
   // 创建 nas
   const { fileSystem, mountTarget } = nas;
@@ -58,15 +70,7 @@ if (fse.pathExistsSync(configFile)) {
     ...mountTarget,
     vswitchId: vs.id,
     fileSystemId: fs.id
-  }, { dependsOn: [fs, vs], parent: fs });
-
-  const ram = new alicloud.ram.Role(role.name, role);
-  for (const rolePolicyAttachment of rolePolicyAttachments) {
-    new alicloud.ram.RolePolicyAttachment(rolePolicyAttachment.policyName, {
-      ...rolePolicyAttachment,
-      roleName: ram.name
-    }, { dependsOn: [ram], parent: ram });
-  }
+  }, { dependsOn: [fs, vs, ...dependsOnRam], parent: fs });
 
   const fcService = new alicloud.fc.Service(service.name, {
     ...service,
@@ -86,7 +90,7 @@ if (fse.pathExistsSync(configFile)) {
       ]
     },
     role: ram.arn
-  }, { dependsOn: [v, vs, sg, fs, mt, ram] });
+  }, { dependsOn: [v, vs, sg, fs, mt, ...dependsOnRam] });
   const fcFunc = new alicloud.fc.Function(functionConfig.name, {
     ...functionConfig,
     service: fcService.name,

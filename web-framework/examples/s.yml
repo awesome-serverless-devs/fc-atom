@@ -13,7 +13,7 @@ Test:
     region: cn-shenzhen
     service:
       name: A-express
-      logConfig: Auto
+      # logConfig: Auto
       # description: 测试环节
     function:
       # name: A-express

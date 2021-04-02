@@ -2,7 +2,7 @@ Type: Component
 Name: fc-nas
 Provider:
   - Alibaba
-Version: 0.0.17
+Version: 0.0.18
 Description: nas 功能
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情

@@ -82,10 +82,6 @@ export default class Resources {
       f.name,
       JSON.stringify([path.join(mountDir, nasDir)]),
     );
-
-    // 资源不常用，提前删除
-    ensureNasDirInputs.args = 'service -s -y';
-    await this.fcBase.remove(ensureNasDirInputs);
   }
 
   async transformYamlConfigToFcbaseConfig(
