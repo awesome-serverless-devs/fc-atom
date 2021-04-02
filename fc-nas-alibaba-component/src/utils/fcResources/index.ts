@@ -38,11 +38,11 @@ export default class Resources {
     const fcBase = await load('fc-base', 'alibaba');
 
     const nasServiceInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', false);
-    nasServiceInputs.args = 'service -y';
+    nasServiceInputs.args = 'service -s -y';
     await fcBase.remove(nasServiceInputs);
 
     const ensureNasDirInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', true);
-    ensureNasDirInputs.args = 'service -y';
+    ensureNasDirInputs.args = 'service -s -y';
     await fcBase.remove(ensureNasDirInputs);
   }
 
@@ -52,7 +52,8 @@ export default class Resources {
       mountPointDomain,
       false,
     );
-
+    this.logger.warn(`deploy nas service`);
+    
     await this.fcBase.deploy(nasServiceInputs);
     this.logger.warn(`Waiting for trigger to be up`);
     await sleep(5000);
@@ -83,7 +84,7 @@ export default class Resources {
     );
 
     // 资源不常用，提前删除
-    ensureNasDirInputs.args = 'service -y';
+    ensureNasDirInputs.args = 'service -s -y';
     await this.fcBase.remove(ensureNasDirInputs);
   }
 
@@ -171,7 +172,7 @@ export default class Resources {
     output.credentials = this.profile;
     output.project.component = 'fc-base';
     output.properties = properties;
-    output.args += '-y';
+    output.args += ' -s -y';
 
     return output;
   }

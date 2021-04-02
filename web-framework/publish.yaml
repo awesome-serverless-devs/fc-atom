@@ -2,7 +2,7 @@ Type: Component
 Name: web-framework
 Provider:
   - Alibaba
-Version: 0.0.19
+Version: 0.0.20
 Description: 上层组件部署和删除的能力
 HomePage: https://github.com/Serverless-Devs
 Tags: #标签详情

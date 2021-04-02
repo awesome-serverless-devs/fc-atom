@@ -64,10 +64,6 @@ export function isAuto(arg: any): arg is 'auto' | 'Auto' {
   return arg === 'auto' || arg === 'Auto';
 }
 
-export function isDebug() {
-  return process.env?.temp_params?.includes('--debug');
-}
-
 export function getLogConfig(logConfig: 'auto' | 'Auto' | ILogConfig, autoName: string) {
   if (isAuto(logConfig)) {
     return {

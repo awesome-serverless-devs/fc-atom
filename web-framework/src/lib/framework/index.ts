@@ -84,13 +84,15 @@ export default class Component {
     const {
       caPort,
       handler,
+      memorySize,
       timeout
     } = functionConfig;
 
     functionConfig.service = this.serviceName;
     functionConfig.name = this.functionName;
     functionConfig.caPort = caPort || 9000;
-    functionConfig.timeout = timeout || 30;
+    functionConfig.timeout = timeout || 60;
+    functionConfig.memorySize = memorySize || 1024;
     functionConfig.handler = handler || 'index.handler';
     functionConfig.runtime = 'custom-container';
 

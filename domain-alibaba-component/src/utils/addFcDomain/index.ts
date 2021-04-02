@@ -27,7 +27,7 @@ export default class AddFcDomain {
     const token: string = tokenRs.Body.Token;
 
     inputs.Properties = getFcProperties(params.region, token);
-    inputs.args += ' -y';
+    inputs.args += ' -s -y';
     const fcBase = await load('fc-base', 'alibaba');
     await fcBase.deploy(inputs);
     await sleep(1500);

@@ -2,7 +2,6 @@ import path from 'path';
 import * as fse from 'fs-extra';
 import { Logger, IV1Inputs } from '@serverless-devs/core';
 import { CONTEXT } from '../constant';
-import { isDebug } from '../lib/utils';
 
 const PULUMI_CODE_DIR: string = path.join(__dirname, 'pulumi-fc');
 const PULUMI_CODE_FILE: string = path.join(PULUMI_CODE_DIR, 'index.js');
@@ -49,7 +48,7 @@ export function genPulumiInputs(
         runtime: 'nodejs',
         cloudPlatform: 'alicloud',
       },
-      Args: isDebug() ? '' : '-s',
+      Args: '',
     },
   );
 
