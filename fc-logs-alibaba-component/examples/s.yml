@@ -5,7 +5,7 @@ LogsApp:
   Properties:
     region: cn-shenzhen
     logConfig:
-      project: aliyun-fc-cn-shenzhen-19b4972b-489d-5832-8464-c3a319bb32d1 # 服务日志配置 Project
-      logstore: function-log
-    topic: guide # 服务名称
-    query: guide-hello_world-nodejs12 # 函数名称或者 SLS 查询语句
+      project: framework-1899690531354629-cn-shenzhen-a-express
+      logstore: logstore
+    topic: django
+    query: test

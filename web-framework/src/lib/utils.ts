@@ -71,7 +71,7 @@ export function isDebug() {
 export function getLogConfig(logConfig: 'auto' | 'Auto' | ILogConfig, autoName: string) {
   if (isAuto(logConfig)) {
     return {
-      project: autoName,
+      project: autoName.toLocaleLowerCase().replace(/_/g, '-'),
       logstore: STORENAME
     }
   }

@@ -212,7 +212,7 @@ export default class Component {
   genLogConfig(): IReturn.IGensls {
     return {
       project: {
-        name: this.autoName,
+        name: this.autoName.toLocaleLowerCase().replace(/_/g, '-'),
         description: 'web-framework-generate',
       },
       store: {

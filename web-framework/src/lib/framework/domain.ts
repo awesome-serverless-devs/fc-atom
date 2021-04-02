@@ -1,8 +1,27 @@
 import * as core from '@serverless-devs/core';
 import _ from 'lodash';
+import fse from 'fs-extra';
 import { CONTEXT } from '../../constant';
 import { IDomain } from './interface';
 import { isAuto } from '../utils';
+
+
+async function readCertFile (filePath: string = '') {
+  if (await fse.pathExists(filePath)) {
+    if (filePath.endsWith('.pom')) {
+      throw new Error(``);
+    }
+
+    const cert = await fse.readFile(filePath, 'utf-8');
+    
+    if (cert.endsWith('\n')) {
+      return cert.slice(0, -2)
+    }
+    return cert;
+  }
+
+  return filePath;
+}
 
 export default class Component {
   @core.HLogger(CONTEXT) static logger: core.ILogger;
@@ -40,7 +59,7 @@ export default class Component {
 
     
     for (const domainConfig of customDomains) {
-      const { domainName, protocol, routeConfigs = [] } = domainConfig;
+      const { domainName, protocol, routeConfigs = [], certConfig } = domainConfig;
 
       if (!domainName) {
         throw new Error('customDomains configuration domainName is need.');
@@ -73,6 +92,12 @@ export default class Component {
         });
       } else {
         domainConfig.routeConfigs = routeConfigs.map(item => ({ serviceName, functionName, ...item }))
+        if (certConfig) {
+          certConfig.certificate = await readCertFile(certConfig.certificate);
+          certConfig.privateKey = await readCertFile(certConfig.privateKey);
+
+          domainConfig.certConfig = certConfig;
+        }
         domainConfigs.push(domainConfig);
       }
     }

@@ -13,7 +13,7 @@ Test:
     region: cn-shenzhen
     service:
       name: A-express
-      # logConfig: Auto
+      logConfig: Auto
       # description: 测试环节
     function:
       # name: A-express
@@ -45,4 +45,11 @@ Test:
         protocol: HTTP
         routeConfigs:
           - path: '/'
-
+      - domainName: test.shoushuai.top
+        protocol: HTTP,HTTPS
+        routeConfigs:
+          - path: '/'
+        certConfig:
+          certName: test
+          certificate: ./certConfigCutom/cate.pem
+          privateKey: ./certConfigCutom/key.pem

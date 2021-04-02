@@ -5,6 +5,8 @@
 .fun
 /*/dist
 /**/node_modules
+/**/*.key
+/**/*.pem
 
 # Logs
 logs
