@@ -1,4 +1,4 @@
-FROM python:3.6.3-jessie
+FROM python:3.6.3-slim
 
 # Create app directory
 WORKDIR /mnt/auto
