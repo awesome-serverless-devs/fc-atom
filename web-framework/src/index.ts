@@ -19,6 +19,7 @@ import NasComponent from './lib/nasComponent';
 import Framework from './lib/framework';
 import ToMetrics from './lib/tarnsform/toMetrics';
 import ToLogs from './lib/tarnsform/toLogs';
+import Fc from './lib/framework/fc';
 import Build from './lib/build';
 
 const PULUMI_CACHE_DIR: string = path.join(os.homedir(), '.s', 'cache', 'pulumi', 'web-framework');
@@ -110,6 +111,8 @@ export default class Component {
     }
 
     await NasComponent.init(properties, _.cloneDeep(inputs));
+
+    await Fc.tryContainerAcceleration(credentials, properties);
 
     // 返回结果
     return fcConfig.customDomains?.map(({ domainName }) => domainName);

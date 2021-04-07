@@ -4,7 +4,7 @@ import * as IReturn from './interface';
 import { CONTEXT, getAutoName, STORENAME, HTTP_CONFIG } from '../../constant';
 import Domain from './domain';
 import Role from './role';
-import ZoneId from './zoneId';
+import Fc from './fc';
 import StorageType from './storageType';
 import { writeStrToFile, isAuto } from '../utils';
 import { IProperties } from '../../interface/inputs';
@@ -61,11 +61,7 @@ export default class Component {
     }
     delete service.role;
 
-    try {
-      config.customDomains = await Domain.get(inputs);
-    } catch (ex) {
-      this.logger.error(ex);
-    }
+    config.customDomains = await Domain.get(inputs);
 
     await writeStrToFile(this.configFile, JSON.stringify(config, null, '  '), 'w', 0o777);
     this.logger.debug(`${this.configFile} created done!`);
@@ -144,8 +140,7 @@ export default class Component {
         vswitch_name: this.autoName,
         cidrBlock: '10.0.0.0/16',
         vpcId: '',
-        availabilityZone: await ZoneId.get(this.properties.region, inputs.Credentials),
-        // zone_id: await ZoneId.get(this.properties.region, inputs.Credentials),
+        availabilityZone: await Fc.getZoneId(this.properties.region, inputs.Credentials),
       },
       securityGroup: {
         description: 'web-framework-generate',

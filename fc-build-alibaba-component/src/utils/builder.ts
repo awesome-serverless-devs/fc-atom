@@ -110,7 +110,7 @@ export default class Builder {
 
     let buildSaveUri: string;
     if (useDocker) {
-      buildSaveUri = await this.buildInDocker(buildInput);
+      buildSaveUri = await this.buildInDocker(buildInput, src);
     } else {
       buildSaveUri = await this.buildArtifact(buildInput, src);
     }
@@ -126,11 +126,11 @@ export default class Builder {
     functionProps,
     verbose = true,
     credentials,
-  }: IBuildInput): Promise<string> {
+  }: IBuildInput, src: string): Promise<string> {
     const stages = ['install', 'build'];
 
     const baseDir = process.cwd();
-    const codeUri = baseDir;
+    const codeUri = path.join(baseDir, src);
     const funcArtifactDir = this.initBuildArtifactDir({ baseDir, serviceName, functionName });
 
     const opts = await generateBuildContainerBuildOpts({
@@ -179,6 +179,7 @@ export default class Builder {
 
     const stages = ['install', 'build'];
     const codePath = path.join(baseDir, src);
+
     const artifactPath = this.initBuildArtifactDir({ baseDir, serviceName, functionName });
 
     // detect fcfile
