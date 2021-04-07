@@ -47,6 +47,8 @@ export default class NasCompoent {
     this.logger.debug(`[${projectName}] inputs params: ${JSON.stringify(inputs)}`);
 
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    inputs.Credentials = credentials;
+
     const properties: IProperties = _.cloneDeep(inputs.Properties);
     this.logger.debug(`Properties values: ${JSON.stringify(properties)}.`);
 
@@ -91,6 +93,7 @@ export default class NasCompoent {
 
     const regionId = inputs.Properties.regionId;
     const credentials = await this.getCredentials(inputs.Credentials, provider, accessAlias);
+    inputs.Credentials = credentials;
 
     const fc = new FcResources(regionId, credentials);
     await fc.remove(inputs);

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import * as IReturn from './interface';
 import { CONTEXT, getAutoName, STORENAME, HTTP_CONFIG } from '../../constant';
 import Domain from './domain';
+import Role from './role';
 import ZoneId from './zoneId';
 import StorageType from './storageType';
 import { writeStrToFile, isAuto } from '../utils';
@@ -52,9 +53,13 @@ export default class Component {
       config.log = this.genLogConfig();
     }
 
-    if (!service.role) {
-      Object.assign(config, this.genRole(service.logConfig));
+    // @TODO: 需要重构 pulumi 的 role 模块
+    if (!service.role || isAuto(service.role)) {
+      Object.assign(config, Role.genAutoRole(this.autoName));
+    } else {
+      Object.assign(config, Role.getRole(service.role));
     }
+    delete service.role;
 
     try {
       config.customDomains = await Domain.get(inputs);
@@ -126,48 +131,6 @@ export default class Component {
       function: functionName,
       service: serviceName,
       config: JSON.stringify(config),
-    };
-  }
-
-  genRole(logConfig): any {
-    const rolePolicyAttachments = [
-      {
-        roleName: this.autoName,
-        policyType: 'System',
-        policyName: 'AliyunECSNetworkInterfaceManagementAccess',
-      },
-      {
-        roleName: this.autoName,
-        policyType: 'System',
-        policyName: 'AliyunContainerRegistryReadOnlyAccess',
-      },
-    ];
-
-    if (logConfig) {
-      rolePolicyAttachments.push({
-        roleName: this.autoName,
-        policyType: 'System',
-        policyName: 'AliyunLogFullAccess',
-      });
-    }
-
-    return {
-      role: {
-        name: this.autoName,
-        document: JSON.stringify({
-          Statement: [
-            {
-              Action: 'sts:AssumeRole',
-              Effect: 'Allow',
-              Principal: {
-                Service: ['fc.aliyuncs.com'],
-              },
-            },
-          ],
-          Version: '1',
-        }),
-      },
-      rolePolicyAttachments,
     };
   }
 

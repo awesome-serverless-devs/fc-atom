@@ -15,6 +15,24 @@ Test:
       name: A-express
       # logConfig: Auto
       # description: 测试环节
+      # role:
+      #   name: framework-1899690531354629-cn-hongkong-express-test
+      #   statement:
+      #     - Action: sts:AssumeRole
+      #       Effect: Allow
+      #       Principal:
+      #         - Service: fc.aliyuncs.com
+      #   policys:
+      #     - policyName: AliyunContainerRegistryReadOnlyAccess
+      #       policyType: System
+      #     - policyName: AliyunECSNetworkInterfaceManagementAccess
+      #       policyType: System
+      #     - policyName: web-framework-policy-test
+      #       statement:
+      #         - Effect: Deny
+      #           Action:
+      #             - sts:AssumeRole
+      #           Resource: '*'
     function:
       # name: A-express
       # service: test-wss-web
@@ -41,15 +59,15 @@ Test:
     #       - POST
     #       - PUT
     customDomains:
-      - domainName: 46724239-1899690531354629.test.functioncompute.com
+      - domainName: Auto
         protocol: HTTP
         routeConfigs:
-          - path: '/'
-      - domainName: test.shoushuai.top
-        protocol: HTTP,HTTPS
-        routeConfigs:
-          - path: '/'
-        certConfig:
-          certName: test
-          certificate: ./certConfigCutom/cate.pem
-          privateKey: ./certConfigCutom/key.pem
+          - path: '/*'
+      # - domainName: test.shoushuai.top
+      #   protocol: HTTP,HTTPS
+      #   routeConfigs:
+      #     - path: '/'
+      #   certConfig:
+      #     certName: test
+      #     certificate: ./certConfigCutom/cate.pem
+      #     privateKey: ./certConfigCutom/key.pem

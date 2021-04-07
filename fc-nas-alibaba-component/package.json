@@ -4,7 +4,7 @@
   "dependencies": {
     "@alicloud/fc2": "^2.2.1",
     "@alicloud/pop-core": "^1.7.10",
-    "@serverless-devs/core": "0.0.29",
+    "@serverless-devs/core": "0.0.43",
     "async": "^3.2.0",
     "fs-extra": "^9.1.0",
     "ignore": "^5.1.8",

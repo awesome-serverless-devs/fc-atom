@@ -1,4 +1,4 @@
-import { HLogger, ILogger, IV1Inputs, IInputs, load } from '@serverless-devs/core';
+import { HLogger, ILogger, IV1Inputs, IInputs, loadComponent } from '@serverless-devs/core';
 import _ from 'lodash';
 import path from 'path';
 import Version from '../version';
@@ -27,7 +27,7 @@ export default class Resources {
   }
 
   async init(inputs: IV1Inputs, mountPointDomain: string) {
-    this.fcBase = await load('fc-base', 'alibaba');
+    this.fcBase = await loadComponent('alibaba/fc-base');
 
     await this.deployEnsureNasDir(inputs, mountPointDomain);
 
@@ -35,7 +35,7 @@ export default class Resources {
   }
 
   async remove(inputs: IV1Inputs) {
-    const fcBase = await load('fc-base', 'alibaba');
+    const fcBase = await loadComponent('alibaba/fc-base');
 
     const nasServiceInputs = await this.transformYamlConfigToFcbaseConfig(inputs, '', false);
     nasServiceInputs.args = 'service -s -y';

@@ -44,7 +44,7 @@ export default class Component {
             functionName,
             qualifier: 'LATEST',
             methods: ['GET', 'POST'],
-            path: '/',
+            path: '/*',
           },
         ],
       }];
@@ -79,16 +79,14 @@ export default class Component {
         domainConfigs.push({
           domainName: domain,
           protocol: 'HTTP',
-          routeConfigs: [
-            {
-              serviceName,
-              functionName,
-              qualifier: 'LATEST',
-              methods: ['GET', 'POST'],
-              path: '/',
-              ...routeConfigs,
-            },
-          ],
+          routeConfigs: routeConfigs.map(item => ({
+            serviceName,
+            functionName,
+            qualifier: 'LATEST',
+            methods: ['GET', 'POST'],
+            path: '/*',
+            ...item
+          })),
         });
       } else {
         domainConfig.routeConfigs = routeConfigs.map(item => ({ serviceName, functionName, ...item }))

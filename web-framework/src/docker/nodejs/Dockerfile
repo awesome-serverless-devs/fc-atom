@@ -1,4 +1,4 @@
-FROM node:14.5.0-alpine3.11
+FROM node:12-stretch
 
 # Create app directory
 WORKDIR /mnt/auto
