@@ -39,7 +39,7 @@ Test:
       # runtime: nodejs12
       # description: 测试环节
       customContainerConfig:
-        image: registry.cn-shenzhen.aliyuncs.com/test-wss/nodejs14:v0.2
+        image: registry.cn-shenzhen.aliyuncs.com/test-wss/nodejs12
         command: '["node", "index.js"]'
         # args: '["--port", "9000"]'
       # caPort: 9000
