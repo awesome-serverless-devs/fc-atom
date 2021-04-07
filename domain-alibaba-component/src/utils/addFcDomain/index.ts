@@ -48,6 +48,6 @@ export default class AddFcDomain {
 
     this.logger.debug(`Get token response is: \n ${JSON.stringify(domainRs, null, '  ')}`);
     checkRs(domainRs);
-    return `${params.function}.${params.service}.${params.user}.fc.devsapp.cn`.toLocaleLowerCase();
+    return `${params.function}.${params.service}.${params.region}.${params.user}.fc.devsapp.cn`.toLocaleLowerCase();
   }
 }
