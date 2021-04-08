@@ -1,10 +1,10 @@
 export interface IFunctionConfig {
-  name: string;
-  service: string;
+  name?: string;
+  service?: string;
   description?: string;
   runtime?: 'custom-container';
   customContainerConfig: ICustomContainerConfig;
-  caPort: number;
+  caPort?: number;
   code: {
     src: string;
     excludes?: string[];
@@ -23,6 +23,6 @@ export interface IFunctionConfig {
 
 export interface ICustomContainerConfig {
   image: string;
-  command: string;
-  args: string;
+  command?: string;
+  args?: string;
 }

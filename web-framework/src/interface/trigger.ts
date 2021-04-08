@@ -1,7 +1,7 @@
 export interface ITriggerConfig {
-  name: string;
-  function: string;
-  service: string;
+  name?: string;
+  function?: string;
+  service?: string;
   type: 'http';
   config: IHttpTriggerConfig;
 }

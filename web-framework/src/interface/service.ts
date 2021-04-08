@@ -1,11 +1,11 @@
 export interface IServiceConfig {
   name: string;
-  role: string;
+  role: 'Auto' | 'auto';
   description?: string;
   internetAccess?: boolean;
   logConfig?: 'auto' | 'Auto' | ILogConfig;
-  vpcConfig?: IVpcConfig;
-  nasConfig?: INasConfig;
+  // vpcConfig?: IVpcConfig;
+  // nasConfig?: INasConfig;
 }
 
 export interface ILogConfig {

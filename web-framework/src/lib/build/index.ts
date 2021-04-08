@@ -1,10 +1,12 @@
 import * as buildInterface from './interface';
 import { IProperties } from '../../interface/inputs';
+import { IFunctionConfig } from '../../interface/function';
+import { IServiceConfig } from '../../interface/service';
 import { getAutoName } from '../../constant';
 import { getLogConfig } from '../utils'
 
 function transfromInputs(inputs) {
-  const { region, service, function: functionConfig }: IProperties = inputs.Properties;
+  const { runtime, region, service, function: functionConfig }: IProperties = inputs.Properties;
 
   const accountID = inputs.Credentials.AccountID;
   const autoName = getAutoName(accountID, region, service.name);
@@ -12,7 +14,7 @@ function transfromInputs(inputs) {
   const config: buildInterface.IProperties = {
     region,
     service: getService(service, autoName),
-    function: getFunction(functionConfig, service.name),
+    function: getFunction(runtime, functionConfig, service.name),
   };
 
   inputs.Properties = config;
@@ -20,7 +22,7 @@ function transfromInputs(inputs) {
   return inputs;
 }
 
-function getService(service, autoName: string): buildInterface.IServiceProps {
+function getService(service: IServiceConfig, autoName: string): buildInterface.IServiceProps {
   const config: buildInterface.IServiceProps = {
     name: service.name,
   };
@@ -32,13 +34,13 @@ function getService(service, autoName: string): buildInterface.IServiceProps {
   return config;
 }
 
-function getFunction(functionConfig, serviceName: string): buildInterface.IFunctionProps {
+function getFunction(runtime: string, functionConfig: IFunctionConfig, serviceName: string): buildInterface.IFunctionProps {
   const config: buildInterface.IFunctionProps = {
     name: functionConfig.name || serviceName,
-    runtime: 'custom', // functionConfig.framework
+    runtime: runtime || 'custom',
     codeUri: functionConfig.code,
     handler: functionConfig.handler || 'index.handler',
-    initializationTimeout: functionConfig.handler || 3,
+    initializationTimeout: functionConfig.initializationTimeout || 3,
     initializer: functionConfig.initializer,
   };
 

@@ -44,10 +44,8 @@ export default class Component {
 
     const { service } = this.properties;
 
-    if (!service.nasConfig) {
-      config.vpc = await this.genVpcConfig(inputs);
-      config.nas = await this.genNasConfig(inputs, assumeYes);
-    }
+    config.vpc = await this.genVpcConfig(inputs);
+    config.nas = await this.genNasConfig(inputs, assumeYes);
 
     if (isAuto(service.logConfig)) {
       config.log = this.genLogConfig();

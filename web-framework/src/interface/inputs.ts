@@ -1,6 +1,7 @@
 import { IServiceConfig } from './service';
 import { IFunctionConfig } from './function';
 import { ITriggerConfig } from './trigger';
+import { ICustomDomain } from './domain';
 
 export interface ICommandParse {
   rawData?: string;
@@ -26,9 +27,10 @@ export function isCredentials(arg: any): arg is ICredentials {
 }
 
 export interface IProperties {
+  runtime: string;
   region: string;
   service: IServiceConfig;
   function: IFunctionConfig;
-  trigger: ITriggerConfig;
-  domain: string;
+  trigger?: ITriggerConfig;
+  customDomains?: ICustomDomain[];
 }

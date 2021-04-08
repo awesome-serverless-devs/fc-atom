@@ -3,6 +3,7 @@ import _ from 'lodash';
 import fse from 'fs-extra';
 import { CONTEXT } from '../../constant';
 import { IDomain } from './interface';
+import { IProperties } from '../../interface/inputs';
 import { isAuto } from '../utils';
 
 
@@ -27,7 +28,7 @@ export default class Component {
   @core.HLogger(CONTEXT) static logger: core.ILogger;
 
   static async get(inputs): Promise<IDomain[]> {
-    const { customDomains, service, function: functionConfig } = inputs.Properties;
+    const { customDomains, service, function: functionConfig }: IProperties = inputs.Properties;
     const serviceName = service.name;
     const functionName = functionConfig.name || serviceName;
 
@@ -56,7 +57,6 @@ export default class Component {
 
     let domain = '';
     const domainConfigs: IDomain[] = [];
-
     
     for (const domainConfig of customDomains) {
       const { domainName, protocol, routeConfigs = [], certConfig } = domainConfig;
@@ -96,6 +96,7 @@ export default class Component {
 
           domainConfig.certConfig = certConfig;
         }
+        // @ts-ignore: serviceName 和 functionName 已经被赋值
         domainConfigs.push(domainConfig);
       }
     }
