@@ -2,6 +2,7 @@
   "name": "heimanba",
   "version": "0.0.1",
   "dependencies": {
+    "@alicloud/fc2": "^2.2.2",
     "@alicloud/pop-core": "^1.7.10",
     "@serverless-devs/core": "^0.0.30",
     "ali-oss": "^6.13.2",
@@ -26,10 +27,9 @@
     "webpack-cli": "^4.4.0"
   },
   "scripts": {
-    "package-zip": "zip -j ./dist/utils/getToken.zip ./src/utils/addFcDomain/getTokenCode/index.js",
     "dev": "npx tsc -w -p tsconfig.json",
     "prebuild": "rimraf dist",
-    "build:ts": "npx tsc -p tsconfig.json",
+    "build:ts": "npx tsc -p tsconfig.json && cp -rf package*.json publish.yaml ./dist",
     "build:component": "npx webpack --mode=production",
     "publish": "npm run build:component && s platform publish",
     "test": "jest",

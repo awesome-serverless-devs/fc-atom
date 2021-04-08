@@ -4,7 +4,7 @@ demo-1:
   Properties:
     type: fc
     user: 1899690531354629
-    region: cn-hongkong
+    region: cn-shenzhen
     service: Authing
     function: Authing
 

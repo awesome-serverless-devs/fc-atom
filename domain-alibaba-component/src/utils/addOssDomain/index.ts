@@ -1,4 +1,4 @@
-import { HLogger, ILogger, request, getCredential } from '@serverless-devs/core';
+import { HLogger, ILogger, request } from '@serverless-devs/core';
 import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
@@ -16,7 +16,7 @@ import { IOSSTOKEN } from '../../interface';
 export default class AddOssDomain {
   @HLogger(constant.CONTEXT) logger: ILogger;
 
-  async domain(params: IOSSTOKEN, inputs: any) {
+  async domain(params: IOSSTOKEN, credential: any) {
     this.logger.debug(
       `The request ${constant.DOMAIN}/token parameter is: \n ${JSON.stringify(
         params,
@@ -40,9 +40,6 @@ export default class AddOssDomain {
 
     this.logger.debug(`Save file path is: ${savePath}, token is: ${token}.`);
     await fs.outputFile(savePath, token);
-
-    const { Provider: provider, AccessAlias: accessAlias } = inputs.Project;
-    const credential = await getCredential(provider, accessAlias);
 
     this.logger.debug('Put file to oss start...');
     const ossCredential = {

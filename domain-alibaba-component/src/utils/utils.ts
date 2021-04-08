@@ -1,5 +1,4 @@
 import { IV1Inputs, IInputs } from '@serverless-devs/core';
-import path from 'path';
 import Pop from '@alicloud/pop-core';
 import _ from 'lodash';
 
@@ -19,39 +18,6 @@ export const tranfromV1InputsToInputs = (inputs: IV1Inputs): IInputs => {
 
   return output;
 };
-
-export function getFcProperties(regionId: string, token: string) {
-  const service = 'serverless-devs-check';
-  const funName = 'get-domain';
-
-  const properties = {
-    region: regionId,
-    service: {
-      name: service,
-    },
-    function: {
-      service,
-      name: funName,
-      handler: 'index.handler',
-      filename: path.join(__dirname, 'getToken.zip'),
-      runtime: 'nodejs8',
-      environmentVariables: { token },
-    },
-    triggers: [
-      {
-        name: 'httpTrigger',
-        function: funName,
-        service: service,
-        type: 'http',
-        config: {
-          authType: 'anonymous',
-          methods: ['POST', 'GET'],
-        },
-      },
-    ],
-  };
-  return properties;
-}
 
 export function checkRs(rs: any) {
   if (rs.Status !== 'Success') {

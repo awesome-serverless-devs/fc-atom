@@ -96,7 +96,7 @@ export default class Cdn {
         'AddCdnDomain',
         {
           DomainName: domainName,
-          Scope: 'overseas',
+          Scope: 'global',
           CdnType: 'web',
           Sources: JSON.stringify([
             { type: 'oss', port: 80, content: `${bucket}.${region}.aliyuncs.com` },
