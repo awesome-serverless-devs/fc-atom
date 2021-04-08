@@ -54,10 +54,9 @@ export default class AddOssDomain {
     const cdn = new Cdn(credential);
     await cdn.makeOwner(bucket, region, token);
     this.logger.debug(`Add cdn domain start, domain is: ${domain}`);
-    await cdn.addCdnDomain(domain, bucket, `oss-${region}`);
+    const cname = await cdn.addCdnDomain(domain, bucket, `oss-${region}`);
     this.logger.debug('Add cdn domain end.');
 
-    const cname = `${domain}.w.kunlunsl.com`;
     this.logger.debug(
       `The request ${constant.DOMAIN}/domain parameter is: { bucket: ${bucket}, region: ${region}, cname: ${cname}, token: ${token} }`,
     );

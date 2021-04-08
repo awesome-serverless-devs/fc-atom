@@ -109,5 +109,16 @@ export default class Cdn {
         throw ex;
       }
     }
+
+    const describeCdnDomainDetail = await this.cdnClient.request(
+      'DescribeCdnDomainDetail',
+      {
+        DomainName: domainName,
+      },
+      POST,
+    );
+    this.logger.debug(`DescribeCdnDomainDetail respones is: ${JSON.stringify(describeCdnDomainDetail)}`);
+    
+    return describeCdnDomainDetail.GetDomainDetailModel.Cname;
   }
 }
