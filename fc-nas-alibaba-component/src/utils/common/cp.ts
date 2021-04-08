@@ -233,7 +233,7 @@ export default class Cp {
     noClobber: boolean,
     excludes: string[] = [],
   ) {
-    const outputFileName = path.basename(path.resolve(srcPath));
+    const outputFileName = `${path.basename(path.resolve(srcPath))}.zip`;
     const outputFilePath = path.join(process.cwd(), '.s', 'zip');
 
     excludes.push(path.relative(process.cwd(), outputFilePath));
@@ -241,8 +241,8 @@ export default class Cp {
 
     // @ts-ignore
     const { compressedSize } = await zip({
+      outputFileName,
       codeUri: resolvedSrc,
-      outputFileName: outputFileName,
       outputFilePath: outputFilePath,
       exclude: excludes,
     });
@@ -255,8 +255,8 @@ export default class Cp {
     this.logger.debug(`Tmp check response is: ${JSON.stringify(tmpCheck)}`);
     this.logger.debug(`Check done`);
 
-    const nasFile = path.posix.join(actualDstPath, `${outputFileName}.zip`);
-    const fileHash = path.posix.join(outputFilePath, `${outputFileName}.zip`);
+    const nasFile = path.posix.join(actualDstPath, outputFileName);
+    const fileHash = path.posix.join(outputFilePath, outputFileName);
     await this.uploadFile(fileHash, nasFile, nasHttpTriggerPath);
 
     this.logger.info('unzipping file');
